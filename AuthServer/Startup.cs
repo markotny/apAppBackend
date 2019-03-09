@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Builder;
@@ -12,9 +13,12 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuthServer.Data;
+using AuthServer.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthServer
@@ -31,6 +35,8 @@ namespace AuthServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IdentityModelEventSource.ShowPII = true;
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -38,7 +44,16 @@ namespace AuthServer
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddRazorPagesOptions(options =>
+                {
+                    options.AllowAreas = true;
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+                });
+
+            // using Microsoft.AspNetCore.Identity.UI.Services;
+            services.AddSingleton<IEmailSender, EmailSender>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -50,9 +65,6 @@ namespace AuthServer
                 // to replace the default OpenIddict entities.
                 options.UseOpenIddict();
             });
-
-            //services.AddDefaultIdentity<IdentityUser>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
             // Register the Identity services.
             services.AddIdentity<IdentityUser, IdentityRole>()
@@ -99,7 +111,7 @@ namespace AuthServer
                     //    password: "anypassword");
 
                     // not for production, use x509 certificate and .AddSigningCertificate()
-                    options.AddEphemeralSigningKey();
+                    options.AddSigningKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")));
                 });
 
             services.AddCors();
@@ -110,14 +122,20 @@ namespace AuthServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "http://localhost:5051/";
-                    options.Audience = "resource_server";
+                    //options.Authority = "http://localhost:44343/";
+                    //options.Audience = "http://localhost:44343/";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         NameClaimType = OpenIdConnectConstants.Claims.Subject,
                         RoleClaimType = OpenIdConnectConstants.Claims.Role,
+                        
+                        //TODO: Change the JWT issuer server to use Certificate and add proper validation
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
                     };
                 });
         }
@@ -125,8 +143,6 @@ namespace AuthServer
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseAuthentication();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -148,6 +164,7 @@ namespace AuthServer
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

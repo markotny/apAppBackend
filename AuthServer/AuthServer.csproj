@@ -15,4 +15,8 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-rc3-final" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\Identity\Services\" />
+  </ItemGroup>
+
 </Project>
