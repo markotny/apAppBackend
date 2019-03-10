@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  authserver:
+    container_name: 'authServer'
+    image: ${DOCKER_REGISTRY-}authserver
+    build:
+      context: .
+      dockerfile: AuthServer/Dockerfile
+
+  postgresDB:
+    container_name: 'postgresDB'
+    image: postgres
+    build:
+      context: .
+      dockerfile: postgresSettings/Dockerfile

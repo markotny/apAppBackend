@@ -35,7 +35,7 @@ namespace AuthServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            IdentityModelEventSource.ShowPII = true;
+            IdentityModelEventSource.ShowPII = true;    //for debugging
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -57,7 +57,7 @@ namespace AuthServer
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(
+                options.UseNpgsql(
                     Configuration.GetConnectionString("DefaultConnection"));
 
                 // Register the entity sets needed by OpenIddict.
