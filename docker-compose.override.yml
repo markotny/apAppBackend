@@ -19,12 +19,14 @@ services:
 
   postgresDB:
     environment:
-      POSTGRES_USER: "admin"
+      POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "AuthServerDB"
     ports:
       - "5433:5432"
     restart: always
+    volumes:
+      - ./postgresDB_scripts:/docker-entrypoint-initdb.d
     networks:
       - "authNetwork"
 

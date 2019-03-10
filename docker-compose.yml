@@ -13,4 +13,4 @@ services:
     image: postgres
     build:
       context: .
-      dockerfile: postgresSettings/Dockerfile
+      dockerfile: Dockerfile-DB
