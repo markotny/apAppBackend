@@ -5,14 +5,14 @@ EXPOSE 443
 
 FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
-COPY ["AuthServer/AuthServer.csproj", "AuthServer/"]
-RUN dotnet restore "AuthServer/AuthServer.csproj"
+COPY AuthServer/AuthServer.csproj AuthServer/
+RUN dotnet restore AuthServer/AuthServer.csproj
 COPY . .
-WORKDIR "/src/AuthServer"
-RUN dotnet build "AuthServer.csproj" -c Release -o /app
+WORKDIR /src/AuthServer
+RUN dotnet build AuthServer.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "AuthServer.csproj" -c Release -o /app
+RUN dotnet publish AuthServer.csproj -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
