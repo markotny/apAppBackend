@@ -27,9 +27,13 @@ services:
     restart: always
     volumes:
       - ./postgresDB_scripts:/docker-entrypoint-initdb.d
+      - postgres:/var/lib/postgresql/data
     networks:
       - "authNetwork"
-
+      
 networks:
   authNetwork:
     driver: bridge
+
+volumes:
+  postgres:
