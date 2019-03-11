@@ -8,6 +8,13 @@ services:
       context: .
       dockerfile: AuthServer/Dockerfile
 
+  resourceserver:
+    container_name: 'resourceServer'
+    image: ${DOCKER_REGISTRY-}resource_server
+    build:
+      context: .
+      dockerfile: ResourceServer/Dockerfile
+
   postgresDB:
     container_name: 'postgresDB'
     image: postgres
