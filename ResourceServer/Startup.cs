@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ResourceServer.Resources;
 
 namespace ResourceServer
 {
@@ -23,6 +24,7 @@ namespace ResourceServer
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            AppSettingProvider.connString = Configuration.GetConnectionString("DefaultConnection");
         }
 
         public IConfiguration Configuration { get; }

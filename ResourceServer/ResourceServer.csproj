@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Views\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -14,6 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.0.2105168" />
+    <PackageReference Include="Npgsql" Version="4.0.5" />
     <PackageReference Include="OpenIddict" Version="2.0.0-rc3-final" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-rc3-final" />
   </ItemGroup>
