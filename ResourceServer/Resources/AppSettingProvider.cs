@@ -8,5 +8,7 @@ namespace ResourceServer.Resources
     public static class AppSettingProvider
     {
         public static String connString { get; set; }
+        public static String migString { get; set; }
+
     }
 }
