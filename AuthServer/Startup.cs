@@ -101,12 +101,12 @@ namespace AuthServer
                     // Enable the token endpoint (required to use the password flow).
                     options.EnableTokenEndpoint("/connect/token");
 
-                    options.RegisterScopes(
-                        OpenIddictConstants.Scopes.Roles,
-                        OpenIdConnectConstants.Scopes.OpenId,
-                        OpenIdConnectConstants.Scopes.Email,
-                        OpenIdConnectConstants.Scopes.Profile,
-                        OpenIdConnectConstants.Scopes.OfflineAccess);
+                    //options.RegisterScopes(
+                    //    OpenIddictConstants.Scopes.Roles,
+                    //    OpenIdConnectConstants.Scopes.OpenId,
+                    //    OpenIdConnectConstants.Scopes.Email,
+                    //    OpenIdConnectConstants.Scopes.Profile,
+                    //    OpenIdConnectConstants.Scopes.OfflineAccess);
                     // Allow client applications to use the grant_type=password flow.
                     options.AllowPasswordFlow()
                         .AllowRefreshTokenFlow();

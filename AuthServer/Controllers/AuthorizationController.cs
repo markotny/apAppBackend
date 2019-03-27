@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Extensions;
 using AspNet.Security.OpenIdConnect.Primitives;
+using AspNet.Security.OpenIdConnect.Server;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -56,69 +57,15 @@ namespace AuthServer.Controllers
                         ErrorDescription = "The username/password couple is invalid."
                     });
                 }
+                var ticket = await CreateTicketAsync(request, user);
 
-                //var user = await _userManager.FindByNameAsync(request.Username);
-                //if (user == null)
-                //{
-                //    return BadRequest(new OpenIdConnectResponse
-                //    {
-                //        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-                //        ErrorDescription = "The username/password couple is invalid."
-                //    });
-                //}
-
-                //// Ensure the user is allowed to sign in.
-                //if (!await _signInManager.CanSignInAsync(user))
-                //{
-                //    return BadRequest(new OpenIdConnectResponse
-                //    {
-                //        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-                //        ErrorDescription = "The specified user is not allowed to sign in."
-                //    });
-                //}
-
-                //// Ensure the user is not already locked out.
-                //if (_userManager.SupportsUserLockout && await _userManager.IsLockedOutAsync(user))
-                //{
-                //    return BadRequest(new OpenIdConnectResponse
-                //    {
-                //        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-                //        ErrorDescription = "The username/password couple is invalid."
-                //    });
-                //}
-
-                //// Ensure the password is valid.
-                //if (!await _userManager.CheckPasswordAsync(user, request.Password))
-                //{
-                //    if (_userManager.SupportsUserLockout)
-                //    {
-                //        await _userManager.AccessFailedAsync(user);
-                //    }
-
-                //    return BadRequest(new OpenIdConnectResponse
-                //    {
-                //        Error = OpenIdConnectConstants.Errors.InvalidGrant,
-                //        ErrorDescription = "The username/password couple is invalid."
-                //    });
-                //}
-
+                return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
                 //if (_userManager.SupportsUserLockout)
                 //{
                 //    await _userManager.ResetAccessFailedCountAsync(user);
                 //}
 
-
-                // Create a new authentication ticket.
-                var ticket = await CreateTicketAsync(request, user);
-
-                return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
-
-
-                //// Create a new ClaimsIdentity holding the user identity.
-                //var identity = new ClaimsIdentity(
-                //    OpenIddictServerDefaults.AuthenticationScheme,
-                //    OpenIdConnectConstants.Claims.Name,
-                //    OpenIdConnectConstants.Claims.Role);
+                //var identity = new ClaimsIdentity(OpenIdConnectServerDefaults.AuthenticationScheme, OpenIdConnectConstants.Claims.Name, OpenIdConnectConstants.Claims.Role);
 
                 //// Add a "sub" claim containing the user identifier, and attach
                 //// the "access_token" destination to allow OpenIddict to store it
@@ -130,10 +77,16 @@ namespace AuthServer.Controllers
                 //identity.AddClaim(OpenIdConnectConstants.Claims.Name, "Alice",
                 //    OpenIdConnectConstants.Destinations.AccessToken);
 
-                //// ... add other claims, if necessary.
-                //var principal = new ClaimsPrincipal(identity);
-                //// Ask OpenIddict to generate a new token and return an OAuth2 token response.
-                //return SignIn(principal, OpenIddictServerDefaults.AuthenticationScheme);
+                //var ticket = new AuthenticationTicket(
+                //    new ClaimsPrincipal(identity),
+                //    new AuthenticationProperties(),
+                //    OpenIdConnectServerDefaults.AuthenticationScheme);
+
+                //// You have to grant the 'offline_access' scope to allow
+                //// OpenIddict to return a refresh token to the caller.
+                //ticket.SetScopes(OpenIdConnectConstants.Scopes.OfflineAccess);
+
+                //return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
             }
             else if (request.IsRefreshTokenGrantType())
             {
