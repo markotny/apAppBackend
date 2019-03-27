@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Abstractions;
 
 namespace AuthServer
 {
@@ -71,6 +72,16 @@ namespace AuthServer
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            // Configure Identity to use the same JWT claims as OpenIddict instead
+            // of the legacy WS-Federation claims it uses by default (ClaimTypes),
+            // which saves you from doing the mapping in your authorization controller.
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
+                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
+                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+            });
+
             // Register the OpenIddict services.
             services.AddOpenIddict()
                 .AddCore(options =>
@@ -90,8 +101,15 @@ namespace AuthServer
                     // Enable the token endpoint (required to use the password flow).
                     options.EnableTokenEndpoint("/connect/token");
 
+                    options.RegisterScopes(
+                        OpenIddictConstants.Scopes.Roles,
+                        OpenIdConnectConstants.Scopes.OpenId,
+                        OpenIdConnectConstants.Scopes.Email,
+                        OpenIdConnectConstants.Scopes.Profile,
+                        OpenIdConnectConstants.Scopes.OfflineAccess);
                     // Allow client applications to use the grant_type=password flow.
-                    options.AllowPasswordFlow();
+                    options.AllowPasswordFlow()
+                        .AllowRefreshTokenFlow();
 
                     // During development, you can disable the HTTPS requirement.
                     options.DisableHttpsRequirement();
@@ -122,8 +140,8 @@ namespace AuthServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    //options.Authority = "http://localhost:44343/";
-                    //options.Audience = "http://localhost:44343/";
+                    //options.Authority = "http://localhost:443/";
+                    //options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
                     options.TokenValidationParameters = new TokenValidationParameters()
