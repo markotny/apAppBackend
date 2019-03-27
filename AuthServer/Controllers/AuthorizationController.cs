@@ -57,38 +57,17 @@ namespace AuthServer.Controllers
                         ErrorDescription = "The username/password couple is invalid."
                     });
                 }
+
+                if (_userManager.SupportsUserLockout)
+                {
+                    await _userManager.ResetAccessFailedCountAsync(user);
+                }
+
                 var ticket = await CreateTicketAsync(request, user);
 
                 return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
-                //if (_userManager.SupportsUserLockout)
-                //{
-                //    await _userManager.ResetAccessFailedCountAsync(user);
-                //}
-
-                //var identity = new ClaimsIdentity(OpenIdConnectServerDefaults.AuthenticationScheme, OpenIdConnectConstants.Claims.Name, OpenIdConnectConstants.Claims.Role);
-
-                //// Add a "sub" claim containing the user identifier, and attach
-                //// the "access_token" destination to allow OpenIddict to store it
-                //// in the access token, so it can be retrieved from your controllers.
-                //identity.AddClaim(OpenIdConnectConstants.Claims.Subject,
-                //    "71346D62-9BA5-4B6D-9ECA-755574D628D8",
-                //    OpenIdConnectConstants.Destinations.AccessToken);
-
-                //identity.AddClaim(OpenIdConnectConstants.Claims.Name, "Alice",
-                //    OpenIdConnectConstants.Destinations.AccessToken);
-
-                //var ticket = new AuthenticationTicket(
-                //    new ClaimsPrincipal(identity),
-                //    new AuthenticationProperties(),
-                //    OpenIdConnectServerDefaults.AuthenticationScheme);
-
-                //// You have to grant the 'offline_access' scope to allow
-                //// OpenIddict to return a refresh token to the caller.
-                //ticket.SetScopes(OpenIdConnectConstants.Scopes.OfflineAccess);
-
-                //return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
             }
-            else if (request.IsRefreshTokenGrantType())
+            if (request.IsRefreshTokenGrantType())
             {
                 // Retrieve the claims principal stored in the refresh token.
                 var info = await HttpContext.AuthenticateAsync(OpenIddictServerDefaults.AuthenticationScheme);
