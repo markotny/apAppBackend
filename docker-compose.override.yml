@@ -12,6 +12,7 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ./certificates:/usr/local/share/ca-certificates
     networks:
       - "authNetwork"
     depends_on:
@@ -28,6 +29,8 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    networks:
+      - "authNetwork"
 
   postgresDB:
     environment:

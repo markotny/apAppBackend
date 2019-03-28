@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ResourceServer
@@ -30,6 +31,8 @@ namespace ResourceServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IdentityModelEventSource.ShowPII = true;    //for debugging
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -37,21 +40,21 @@ namespace ResourceServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    //options.Authority = "http://localhost:44343/";
-                    //options.Audience = "http://localhost:44343/";
+                    options.Authority = "http://authServer:80";
+                    options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        NameClaimType = OpenIdConnectConstants.Claims.Subject,
-                        RoleClaimType = OpenIdConnectConstants.Claims.Role,
+                    //options.TokenValidationParameters = new TokenValidationParameters()
+                    //{
+                    //    NameClaimType = OpenIdConnectConstants.Claims.Subject,
+                    //    RoleClaimType = OpenIdConnectConstants.Claims.Role,
 
-                        //TODO: Change the JWT issuer server to use Certificate and add proper validation
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
-                    };
+                    //    //TODO: Change the JWT issuer server to use Certificate and add proper validation
+                    //    ValidateIssuer = false,
+                    //    ValidateAudience = false,
+                    //    ValidateIssuerSigningKey = true,
+                    //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
+                    //};
                 });
         }
 
