@@ -121,7 +121,7 @@ namespace AuthServer
                     options.AcceptAnonymousClients();
 
                     options.UseJsonWebTokens();
-
+                    
                     // Create self-signed certificate with https://s3.amazonaws.com/pluralsight-free/keith-brown/samples/SelfCert.zip
                     // Save in AuthServer/cert.pfx
                     options.AddSigningCertificate(
@@ -140,21 +140,22 @@ namespace AuthServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    //options.Authority = "http://localhost:443/";
-                    //options.Audience = "ResourceServer";
+                    options.Authority = "http://localhost:80";
+                    options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        NameClaimType = OpenIdConnectConstants.Claims.Subject,
-                        RoleClaimType = OpenIdConnectConstants.Claims.Role,
+                    
+                    //options.TokenValidationParameters = new TokenValidationParameters()
+                    //{
+                    //    NameClaimType = OpenIdConnectConstants.Claims.Subject,
+                    //    RoleClaimType = OpenIdConnectConstants.Claims.Role,
                         
-                        //TODO: Change the JWT issuer server to use Certificate and add proper validation
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
-                    };
+                    //    //TODO: Change the JWT issuer server to use Certificate and add proper validation
+                    //    ValidateIssuer = false,
+                    //    ValidateAudience = false,
+                    //    ValidateIssuerSigningKey = true,
+                    //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
+                    //};
                 });
         }
 
@@ -179,7 +180,7 @@ namespace AuthServer
                     .AllowCredentials()
             );
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
