@@ -52,16 +52,16 @@ namespace ResourceServer.Migrations
         {
             query = "CREATE TABLE public.Apartment (" +
                     "ID_Ap         SERIAL," +
-                    "Name          varchar (100) NOT NULL," +
-                    "City          varchar (100) NOT NULL," +
-                    "Street        varchar (100) NOT NULL," +
-                    "Address       varchar (20)  NOT NULL," +
-                    "ImgThumb      varchar (200),"   +
-                    "ImgList       character varying(200)[]," +
-                    "Rate          numeric (2,1),"   +
-                    "Lat           numeric (9,7) NOT NULL," +
-                    "Long          numeric (10,7)NOT NULL," +
-                    "IDUser        INTEGER,"       +       
+                    "Name            varchar (100) NOT NULL," +
+                    "City            varchar (100) NOT NULL," +
+                    "Street          varchar (100) NOT NULL," +
+                    "ApartmentNumber varchar (20)  NOT NULL," +
+                    "ImgThumb        varchar (200),"          +
+                    "ImgList         character varying(200)[]," +
+                    "Rate            numeric (2,1),"          +
+                    "Lat             numeric (9,7) NOT NULL," +
+                    "Long            numeric (10,7)NOT NULL," +
+                    "IDUser          INTEGER,"                +       
                     "CONSTRAINT pk_apartment PRIMARY KEY(ID_Ap)," +
                     "CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES public.User(ID_User) ON DELETE RESTRICT" +
                     ");";

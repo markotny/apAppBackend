@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Npgsql;
+using ResourceServer.JSONModels;
 using ResourceServer.Resources;
 using System;
 using System.Collections.Generic;
@@ -72,11 +73,11 @@ namespace ResourceServer.Models
             return apartment;
         }
         //Get all Apartments
-        public static IEnumerable<Apartment> getAllApartments()
+        public static IList<Apartment> getAllApartments()
         {
             query = @"SELECT * FROM Apartment;";
 
-            IEnumerable<Apartment> apartment = null;
+            IList<Apartment> apartment = null;
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -85,6 +86,41 @@ namespace ResourceServer.Models
             }
             return apartment;
         }
+        //Get with limit and offset Apartments
+        public static ApartmentJSON getApartments(int limit, int offset)
+        {
+            query = @"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT @limit OFFSET @offset;";
+
+            IList<Apartment> apartments = null;
+            ApartmentJSON apJson = new ApartmentJSON();
+
+            var parameters = new Dictionary<string, object>();
+            parameters.Add("limit", limit + 1);
+            parameters.Add("offset", offset);
+
+            DynamicParameters dbParams = new DynamicParameters();
+            dbParams.AddDynamicParams(parameters);
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                apartments = connection.Query<Apartment>(query, dbParams).ToList();
+            }
+
+            if(apartments.Count <= limit)
+            {
+                apJson.hasMore = false;
+                apJson.apartmentsList = apartments;
+            }
+            else
+            {
+                apartments.RemoveAt(limit);
+                apJson.hasMore = true;
+                apJson.apartmentsList = apartments;
+            }
+            
+            return apJson;
+        }
         //Update Apartment
         public static void updateApartment(Apartment ap)
         {
@@ -92,7 +128,7 @@ namespace ResourceServer.Models
                     "Name = @Name,"+
                     "City = @City,"+
                     "Street = @Street,"+
-                    "Address = @Address,"+
+                    "ApartmentNumber = @ApartmentNumber,"+
                     "ImgThumb = @ImgThumb,"+
                     "ImgList = @ImgList,"+
                     "Rate = @Rate,"+
@@ -111,7 +147,7 @@ namespace ResourceServer.Models
         public static void createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-                    "(Name,City,Street,Address,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
+                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
                     " VALUES "+
                     "(@Name,@City,@Street,@Address,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser);";
 

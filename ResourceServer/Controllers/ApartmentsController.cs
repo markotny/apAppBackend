@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ResourceServer.JSONModels;
 using ResourceServer.Models;
+using ResourceServer.Resources;
 
 namespace ResourceServer.Controllers
 {
@@ -16,9 +18,12 @@ namespace ResourceServer.Controllers
     {
         // GET: api/Apartments
         [HttpGet]
-        public string Get()
+        public string Get(LimitOffset limit_offset)
         {
-            IEnumerable<Apartment> aps = TrueHomeContext.getAllApartments();
+            int limit = limit_offset.limit;
+            int offset = limit_offset.offset;
+
+            ApartmentJSON aps = TrueHomeContext.getApartments(limit, offset);
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
