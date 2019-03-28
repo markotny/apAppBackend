@@ -162,7 +162,7 @@ namespace AuthServer.Controllers
                     (claim.Type == OpenIdConnectConstants.Claims.Email && ticket.HasScope(OpenIdConnectConstants.Scopes.Email)) ||
                     (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddictConstants.Claims.Roles)))
                 {
-                    destinations.Add(OpenIdConnectConstants.Destinations.IdentityToken);
+                    destinations.Add(OpenIdConnectConstants.Destinations.AccessToken);
                 }
 
                 claim.SetDestinations(destinations);

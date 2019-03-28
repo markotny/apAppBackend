@@ -21,4 +21,11 @@
     <Folder Include="Areas\Identity\Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="cert.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="cert.pfx" />
+  </ItemGroup>
+
 </Project>
