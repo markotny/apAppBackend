@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
+using Dapper.FluentMap;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +28,12 @@ namespace ResourceServer
             Configuration = configuration;
             AppSettingProvider.connString = Configuration.GetConnectionString("DefaultConnection");
             AppSettingProvider.migString = Configuration.GetConnectionString("MigrationConnection");
+
+            FluentMapper.Initialize(config =>
+            {
+                //config.AddMap(new ApartmentMap());
+                //config.AddMap(new UserMap());
+            });
         }
 
         public IConfiguration Configuration { get; }

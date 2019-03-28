@@ -38,7 +38,7 @@ namespace ResourceServer.Migrations
         private static void createUserTable(NpgsqlConnection connection)
         {
             query = "CREATE TABLE public.User(" +
-                    "ID_User       INTEGER," +
+                    "ID_User       SERIAL," +
                     "Login         varchar (100) NOT NULL," +
                     "Email         varchar (100) NOT NULL," +
                     "IDRole        INTEGER," +
@@ -51,13 +51,14 @@ namespace ResourceServer.Migrations
         private static void createApartmentTable(NpgsqlConnection connection)
         {
             query = "CREATE TABLE public.Apartment (" +
-                    "ID_Ap         INTEGER," +
+                    "ID_Ap         SERIAL," +
                     "Name          varchar (100) NOT NULL," +
                     "City          varchar (100) NOT NULL," +
                     "Street        varchar (100) NOT NULL," +
                     "Address       varchar (20)  NOT NULL," +
-                    "ImgThumb      varchar (200)," +
-                    "Rate          numeric (2,1)," +
+                    "ImgThumb      varchar (200),"   +
+                    "ImgList       character varying(200)[]," +
+                    "Rate          numeric (2,1),"   +
                     "Lat           numeric (9,7) NOT NULL," +
                     "Long          numeric (10,7)NOT NULL," +
                     "IDUser        INTEGER,"       +       
@@ -70,7 +71,7 @@ namespace ResourceServer.Migrations
         private static void createRoleTable(NpgsqlConnection connection)
         {
             query = "CREATE TABLE public.Role (" +
-                    "ID_Role       INTEGER," +
+                    "ID_Role       SERIAL," +
                     "RoleName      varchar (30) NOT NULL," +
                     "CONSTRAINT pk_role PRIMARY KEY (ID_Role)" +
                     ");";

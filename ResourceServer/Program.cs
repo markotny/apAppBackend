@@ -16,9 +16,9 @@ namespace ResourceServer
     {
         public static void Main(string[] args)
         {
-            //CreateWebHostBuilder(args).Build().Run();
-            CreateWebHostBuilder(args).Build();
-            Migration.createDB();
+            CreateWebHostBuilder(args).Build().Run();
+            //CreateWebHostBuilder(args).Build();
+            //Migration.createDB();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
