@@ -26,6 +26,7 @@ namespace ResourceServer
         {
             Configuration = configuration;
             AppSettingProvider.connString = Configuration.GetConnectionString("DefaultConnection");
+            AppSettingProvider.migString = Configuration.GetConnectionString("MigrationConnection");
         }
 
         public IConfiguration Configuration { get; }

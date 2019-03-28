@@ -8,6 +8,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ResourceServer.Migrations;
 
 namespace ResourceServer
 {
@@ -15,7 +16,9 @@ namespace ResourceServer
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            //CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args).Build();
+            Migration.createDB();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
