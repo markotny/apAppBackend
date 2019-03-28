@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
@@ -121,17 +122,14 @@ namespace AuthServer
 
                     options.UseJsonWebTokens();
 
-                    //https://openiddict.github.io/openiddict-documentation/configuration/token-setup-and-validation.html#jwts
-                    //JWTs must be signed by a self-signing certificate or a symmetric key
-                    //Here a certificate is used. I used IIS to create a self-signed certificate
-                    //and saved it in /FolderName folder. See below for .csproj configuration
-                    //options.AddSigningCertificate(
-                    //    assembly: typeof(Startup).GetTypeInfo().Assembly,
-                    //    resource: "AppName.FolderName.certname.pfx",
-                    //    password: "anypassword");
+                    // Create self-signed certificate with https://s3.amazonaws.com/pluralsight-free/keith-brown/samples/SelfCert.zip
+                    // Save in AuthServer/cert.pfx
+                    options.AddSigningCertificate(
+                        assembly: typeof(Startup).GetTypeInfo().Assembly,
+                        resource: "AuthServer.cert.pfx",
+                        password: "P@ssw0rd");
 
-                    // not for production, use x509 certificate and .AddSigningCertificate()
-                    options.AddSigningKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")));
+                    //options.AddSigningKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")));
                 });
 
             services.AddCors();
@@ -161,7 +159,7 @@ namespace AuthServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, RoleManager<IdentityRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -192,6 +190,23 @@ namespace AuthServer
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            //await SeedDB(roleManager);
+        }
+
+        private async Task SeedDB(RoleManager<IdentityRole> roleManager)
+        {
+            var roles = new[] { "User", "Owner", "Administrator" };
+            
+            foreach (var role in roles)
+            {
+                if (await roleManager.RoleExistsAsync(role)) continue;
+
+                var newRole = new IdentityRole(role);
+                await roleManager.CreateAsync(newRole);
+                // In the real world, there might be claims associated with roles
+                // _roleManager.AddClaimAsync(newRole, new )
+            }
         }
     }
 }
