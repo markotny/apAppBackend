@@ -120,14 +120,18 @@ namespace AuthServer
                     // Accept token requests that don't specify a client_id.
                     options.AcceptAnonymousClients();
 
+                    var iss = new Uri("http://authServer:80");
+                    options.SetIssuer(iss);
+
                     options.UseJsonWebTokens();
-                    
+
+                    options.AddDevelopmentSigningCertificate();
                     // Create self-signed certificate with https://s3.amazonaws.com/pluralsight-free/keith-brown/samples/SelfCert.zip
                     // Save in AuthServer/cert.pfx
-                    options.AddSigningCertificate(
-                        assembly: typeof(Startup).GetTypeInfo().Assembly,
-                        resource: "AuthServer.cert.pfx",
-                        password: "P@ssw0rd");
+                    //options.AddSigningCertificate(
+                    //    assembly: typeof(Startup).GetTypeInfo().Assembly,
+                    //    resource: "AuthServer.cert.pfx",
+                    //    password: "P@ssw0rd");
 
                     //options.AddSigningKey(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")));
                 });
