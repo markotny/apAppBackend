@@ -7,6 +7,10 @@ services:
     build:
       context: .
       dockerfile: AuthServer/Dockerfile
+    networks:
+      - "authNetwork"
+    depends_on:
+      - "postgresDB"
 
   resourceserver:
     container_name: 'resourceServer'
@@ -14,6 +18,8 @@ services:
     build:
       context: .
       dockerfile: ResourceServer/Dockerfile
+    networks:
+      - "authNetwork"
 
   postgresDB:
     container_name: 'postgresDB'
@@ -21,3 +27,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-DB
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - "authNetwork"
+      
+networks:
+  authNetwork:
+    driver: bridge
+
+volumes:
+  postgres:

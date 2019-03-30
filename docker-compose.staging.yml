@@ -5,27 +5,21 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      #- ASPNETCORE_URLS=https://+:443;http://+:80
-      #- ASPNETCORE_HTTPS_PORT=44343
     ports:
       - "50648:80"
-      #- "44343:443"
     volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ~/Https:/root/.aspnet/https:ro
+      - ~/UserSecrets:/root/.microsoft/usersecrets:ro
       
   resourceserver:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      #- ASPNETCORE_URLS=https://+:443;http://+:80
-      #- ASPNETCORE_HTTPS_PORT=44344
     ports:
       - "50649:80"
-      #- "44344:443"
     volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ~/Https:/root/.aspnet/https:ro
+      - ~/UserSecrets:/root/.microsoft/usersecrets:ro
 
   postgresDB:
     environment:
@@ -36,5 +30,5 @@ services:
       - "5433:5432"
     restart: always
     volumes:
-      - ./postgresDB_scripts:/docker-entrypoint-initdb.d
+      - /docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       
