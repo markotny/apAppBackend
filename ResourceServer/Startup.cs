@@ -44,18 +44,11 @@ namespace ResourceServer
                     options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
-                    //options.TokenValidationParameters = new TokenValidationParameters()
-                    //{
-                    //    NameClaimType = OpenIdConnectConstants.Claims.Subject,
-                    //    RoleClaimType = OpenIdConnectConstants.Claims.Role,
-
-                    //    //TODO: Change the JWT issuer server to use Certificate and add proper validation
-                    //    ValidateIssuer = false,
-                    //    ValidateAudience = false,
-                    //    ValidateIssuerSigningKey = true,
-                    //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("FOR TESTING ONLY")),
-                    //};
                 });
+
+            services.AddHttpClient(
+                "auth",
+                c => { c.BaseAddress = new Uri("http://authServer:80/"); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
