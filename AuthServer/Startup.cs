@@ -101,7 +101,7 @@ namespace AuthServer
 
                     // Enable the token endpoint (required to use the password flow).
                     options.EnableTokenEndpoint("/connect/token");
-
+                    
                     //either disable scope validation or register scopes https://github.com/openiddict/openiddict-core/issues/621
                     options.DisableScopeValidation();
                     //options.RegisterScopes(

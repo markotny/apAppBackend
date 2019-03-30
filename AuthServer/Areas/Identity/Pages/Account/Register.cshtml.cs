@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace AuthServer.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
+    [IgnoreAntiforgeryToken(Order = 1001)]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
