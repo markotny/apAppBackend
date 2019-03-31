@@ -18,7 +18,7 @@ namespace ResourceServer.Controllers
     public class ApartmentsController : ControllerBase
     {
         // GET: api/Apartments
-        [HttpGet]
+        [HttpPost]
         public string Get(LimitOffset limit_offset)
         {
             int limit = limit_offset.limit;
@@ -37,7 +37,7 @@ namespace ResourceServer.Controllers
         }
 
         // CREATE POST: api/Apartments
-        [HttpPost]
+        [HttpPost("/add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
             TrueHomeContext.createApartment(ap);
@@ -48,7 +48,7 @@ namespace ResourceServer.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Apartment ap)
         {
-            if(id == ap.ID_Ap)
+            if (id == ap.ID_Ap)
             {
                 TrueHomeContext.updateApartment(ap);
             }
