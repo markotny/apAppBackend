@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ResourceServer.JSONModels;
@@ -17,10 +18,13 @@ namespace ResourceServer.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IHttpClientFactory clientFactory)
+        public AuthController(IHttpClientFactory clientFactory,
+            ILogger<AuthController> logger)
         {
             _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         // POST: api/Auth/login
@@ -32,20 +36,11 @@ namespace ResourceServer.Controllers
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("username", loginJson.login),
-                    new KeyValuePair<string, string>("password", loginJson.pass),
+                    new KeyValuePair<string, string>("username", loginJson.Login),
+                    new KeyValuePair<string, string>("password", loginJson.Password),
                     new KeyValuePair<string, string>("grant_type", "password"),
                     new KeyValuePair<string, string>("scope", "offline_access")
                 }));
-            //var response = await client.PostAsync(
-            //    "connect/token",
-            //    new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
-            //    {
-            //        new KeyValuePair<string, string>("username", "a@a.a"),
-            //        new KeyValuePair<string, string>("password", "P@ssw0rd"),
-            //        new KeyValuePair<string, string>("grant_type", "password"),
-            //        new KeyValuePair<string, string>("scope", "offline_access")
-            //    }));
 
             var str = await response.Content.ReadAsStringAsync();
             return JObject.Parse(str);
@@ -61,7 +56,7 @@ namespace ResourceServer.Controllers
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                    new KeyValuePair<string, string>("refresh_token", refreshJson.refresh_token)
+                    new KeyValuePair<string, string>("refresh_token", refreshJson.RefreshToken)
                 }));
 
             var str = await response.Content.ReadAsStringAsync();
@@ -77,12 +72,13 @@ namespace ResourceServer.Controllers
                 "connect/register",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
+                    new KeyValuePair<string, string>("Login", registerJson.Login),
                     new KeyValuePair<string, string>("Email", registerJson.Email),
                     new KeyValuePair<string, string>("Password", registerJson.Password)
                 }));
             
             var str = await response.Content.ReadAsStringAsync();
-            return JObject.Parse(str);
+            return JObject.Parse("{\"RegisterStatus\": " + str + "}");
         }
     }
 }

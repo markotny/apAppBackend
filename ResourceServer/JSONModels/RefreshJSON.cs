@@ -7,6 +7,7 @@ namespace ResourceServer.JSONModels
 {
     public class RefreshJSON
     {
-        public string refresh_token { get; set; }
+        public string Login { get; set; }
+        public string RefreshToken { get; set; }
     }
 }
