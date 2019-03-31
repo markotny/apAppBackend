@@ -32,10 +32,10 @@ namespace ResourceServer.Controllers
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("username", loginJson.username),
-                    new KeyValuePair<string, string>("password", loginJson.password),
-                    new KeyValuePair<string, string>("grant_type", loginJson.grant_type),
-                    new KeyValuePair<string, string>("scope", loginJson.scope)
+                    new KeyValuePair<string, string>("username", loginJson.login),
+                    new KeyValuePair<string, string>("password", loginJson.pass),
+                    new KeyValuePair<string, string>("grant_type", "password"),
+                    new KeyValuePair<string, string>("scope", "offline_access")
                 }));
             //var response = await client.PostAsync(
             //    "connect/token",
@@ -60,7 +60,7 @@ namespace ResourceServer.Controllers
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("grant_type", refreshJson.grant_type),
+                    new KeyValuePair<string, string>("grant_type", "refresh_token"),
                     new KeyValuePair<string, string>("refresh_token", refreshJson.refresh_token)
                 }));
 
