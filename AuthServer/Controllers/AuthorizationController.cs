@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Extensions;
 using AspNet.Security.OpenIdConnect.Primitives;
 using AspNet.Security.OpenIdConnect.Server;
+using AuthServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -169,6 +170,19 @@ namespace AuthServer.Controllers
             }
 
             return ticket;
+        }
+
+
+
+        [HttpPost("~/connect/register")]
+        public async Task<IActionResult> Register(RegisterJSON Input)
+        {
+            var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+            var result = await _userManager.CreateAsync(user, Input.Password);
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result.Errors);
         }
     }
 }
