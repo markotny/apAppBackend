@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using ResourceServer.JSONModels;
 
 namespace ResourceServer.Controllers
 {
@@ -21,53 +25,64 @@ namespace ResourceServer.Controllers
 
         // POST: api/Auth/login
         [HttpPost]
-        public HttpResponseMessage login()//[FromBody] string value)
+        public async Task<JObject> login(LoginJSON loginJson)
         {
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
+            var response = await client.PostAsync(
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("username", "x@x.x"),
-                    new KeyValuePair<string, string>("password", "P@ssw0rd"),
-                    new KeyValuePair<string, string>("grant_type", "password"),
-                    new KeyValuePair<string, string>("scope", "offline_access")
+                    new KeyValuePair<string, string>("username", loginJson.username),
+                    new KeyValuePair<string, string>("password", loginJson.password),
+                    new KeyValuePair<string, string>("grant_type", loginJson.grant_type),
+                    new KeyValuePair<string, string>("scope", loginJson.scope)
                 }));
-            
-            return response.Result;
+            //var response = await client.PostAsync(
+            //    "connect/token",
+            //    new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
+            //    {
+            //        new KeyValuePair<string, string>("username", "a@a.a"),
+            //        new KeyValuePair<string, string>("password", "P@ssw0rd"),
+            //        new KeyValuePair<string, string>("grant_type", "password"),
+            //        new KeyValuePair<string, string>("scope", "offline_access")
+            //    }));
+
+            var str = await response.Content.ReadAsStringAsync();
+            return JObject.Parse(str);
         }
 
         // POST: api/Auth/refresh
         [HttpPost]
-        public HttpResponseMessage refresh()//[FromBody] string value)
+        public async Task<JObject> refresh(RefreshJSON refreshJson)
         {
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
+            var response = await client.PostAsync(
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                    new KeyValuePair<string, string>("refresh_token", "token...")
+                    new KeyValuePair<string, string>("grant_type", refreshJson.grant_type),
+                    new KeyValuePair<string, string>("refresh_token", refreshJson.refresh_token)
                 }));
 
-            return response.Result;
+            var str = await response.Content.ReadAsStringAsync();
+            return JObject.Parse(str);
         }
 
         // POST: api/Auth/register
         [HttpPost]
-        public HttpResponseMessage register()//[FromBody] string value)
+        public async Task<JObject> register(RegisterJSON registerJson)
         {
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
-                "Identity/Account/Register",
+            var response = await client.PostAsync(
+                "connect/register",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("Email", "x@x.x"),
-                    new KeyValuePair<string, string>("Password", "P@ssw0rd"),
-                    new KeyValuePair<string, string>("ConfirmPassword", "P@ssw0rd")
+                    new KeyValuePair<string, string>("Email", registerJson.Email),
+                    new KeyValuePair<string, string>("Password", registerJson.Password)
                 }));
-
-            return response.Result;
+            
+            var str = await response.Content.ReadAsStringAsync();
+            return JObject.Parse(str);
         }
     }
 }
