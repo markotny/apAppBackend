@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
+using Dapper.FluentMap;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using ResourceServer.Resources;
 
 namespace ResourceServer
 {
@@ -24,6 +26,14 @@ namespace ResourceServer
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            AppSettingProvider.connString = Configuration.GetConnectionString("DefaultConnection");
+            AppSettingProvider.migString = Configuration.GetConnectionString("MigrationConnection");
+
+            FluentMapper.Initialize(config =>
+            {
+                //config.AddMap(new ApartmentMap());
+                //config.AddMap(new UserMap());
+            });
         }
 
         public IConfiguration Configuration { get; }
