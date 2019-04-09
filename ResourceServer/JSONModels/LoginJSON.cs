@@ -7,7 +7,7 @@ namespace ResourceServer.JSONModels
 {
     public class LoginJSON
     {
-        public string login { get; set; }
-        public string pass { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
     }
 }

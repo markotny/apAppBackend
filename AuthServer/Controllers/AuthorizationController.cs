@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Extensions;
@@ -10,6 +11,7 @@ using AuthServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using OpenIddict.Server;
@@ -21,15 +23,18 @@ namespace AuthServer.Controllers
         private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<AuthorizationController> _logger;
 
         public AuthorizationController(
             IOptions<IdentityOptions> identityOptions,
             SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            ILogger<AuthorizationController> logger)
         {
             _identityOptions = identityOptions;
             _signInManager = signInManager;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [HttpPost("~/connect/token")]
@@ -175,14 +180,30 @@ namespace AuthServer.Controllers
 
 
         [HttpPost("~/connect/register")]
-        public async Task<IActionResult> Register(RegisterJSON Input)
+        public async Task<int> Register(RegisterJSON input)
         {
-            var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
-            var result = await _userManager.CreateAsync(user, Input.Password);
-            if (result.Succeeded)
-                return Ok(result);
+            var user = await _userManager.FindByNameAsync(input.Login);
+            if (user != null)
+            {
+                _logger.LogDebug("Account with username " + input.Login + " already exists.");
+                return 3;
+            }
 
-            return BadRequest(result.Errors);
+            user = await _userManager.FindByEmailAsync(input.Email);
+            if (user != null)
+            {
+                _logger.LogDebug("Account with email " + input.Email + " already exists.");
+                return 2;
+            }
+
+            user = new IdentityUser { UserName = input.Login, Email = input.Email };
+            var result = await _userManager.CreateAsync(user, input.Password);
+
+            if (!result.Succeeded)
+                return 0;
+
+            _logger.LogInformation("Created new account with username " + input.Login);
+            return 1;
         }
     }
 }
