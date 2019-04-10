@@ -26,6 +26,7 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ~/source/repos/apappPictures:/data/pictures
 
   postgresDB:
     environment:
@@ -37,4 +38,4 @@ services:
     restart: always
     volumes:
       - ./postgresDB_scripts:/docker-entrypoint-initdb.d
-      
+      - ~/source/repos/apappPictures:/data/pictures
