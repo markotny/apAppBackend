@@ -70,6 +70,7 @@ namespace ResourceServer.Models
                 connection.Open();
                 apartment = connection.Query<Apartment>(query, dbParams).FirstOrDefault();
             }
+
             return apartment;
         }
         //Get all Apartments
@@ -174,6 +175,25 @@ namespace ResourceServer.Models
                 connection.Open();
                 connection.Execute(query, dbParams);
             }
+        }
+        //Add picture reference
+        public static void AddPictureRef(int id, string fileName)
+        {
+            var apartment = getApartment(id);
+            apartment.ImgList = apartment.ImgList.Concat(new[] {fileName}).ToArray();
+            updateApartment(apartment);
+
+            //TODO: make this work instead of loading whole apartment object
+            //query = @"SELECT ImgList FROM Apartment WHERE id_ap = @id;";
+            //var updQuery = @"UPDATE Apartment SET ImgList = @imgList WHERE id_ap = @id;";
+
+            //using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            //{
+            //    connection.Open();
+            //    var imgList = connection.Query<string[]>(query, new {id}).FirstOrDefault();
+            //    imgList.Append(fileName);
+            //    connection.Execute(updQuery, new {imgList, id});
+            //}
         }
     }
 }

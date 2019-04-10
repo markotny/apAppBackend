@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
+using ResourceServer.Models;
 
 namespace ResourceServer.Controllers
 {
@@ -27,7 +29,7 @@ namespace ResourceServer.Controllers
         [HttpGet("{idAp}/{filename}")]
         public async Task<IActionResult> Get(int idAp, string filename)
         {
-            var path = "/data/pictures/" + idAp + "/" + filename;
+            var path = $"/data/pictures/{idAp}/{filename}";
             try
             {
                 _logger.LogDebug("Fetching picture from " + path);
@@ -41,6 +43,41 @@ namespace ResourceServer.Controllers
             }
         }
 
+        [HttpPost("{idAp}")]
+        public async Task<IActionResult> UploadImg(int idAp, [FromForm] IFormFile file)
+        {
+            if (file.Length > 0 && file.ContentType.Contains("image"))
+            {
+                var path = $"/data/pictures/{idAp}/{file.FileName}";
+
+                if (System.IO.File.Exists(path))
+                {
+                    _logger.LogWarning($"File {path} already exists, aborting.");
+                    return Ok();
+                }
+
+                try
+                {
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    TrueHomeContext.AddPictureRef(idAp, file.FileName);
+
+                    _logger.LogInformation("Uploaded new picture to apartment " + idAp);
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Error while saving file: " + e);
+                    return BadRequest();
+                }
+            }
+
+            _logger.LogError("Wrong file format or no file given.");
+            return BadRequest();
+        }
 
         private string MapContentType(string path)
         {
