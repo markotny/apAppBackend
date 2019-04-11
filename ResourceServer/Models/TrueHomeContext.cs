@@ -195,5 +195,24 @@ namespace ResourceServer.Models
             //    connection.Execute(updQuery, new {imgList, id});
             //}
         }
+        //Delete picture reference
+        public static void DeletePictureRef(int id, string fileName)
+        {
+            var apartment = getApartment(id);
+            apartment.ImgList = apartment.ImgList.Where(file => file != fileName).ToArray();
+            updateApartment(apartment);
+
+            //TODO: make this work instead of loading whole apartment object
+            //query = @"SELECT ImgList FROM Apartment WHERE id_ap = @id;";
+            //var updQuery = @"UPDATE Apartment SET ImgList = @imgList WHERE id_ap = @id;";
+
+            //using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            //{
+            //    connection.Open();
+            //    var imgList = connection.Query<string[]>(query, new {id}).FirstOrDefault();
+            //    imgList.Append(fileName);
+            //    connection.Execute(updQuery, new {imgList, id});
+            //}
+        }
     }
 }

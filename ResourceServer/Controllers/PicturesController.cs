@@ -36,7 +36,7 @@ namespace ResourceServer.Controllers
                 var pic = await System.IO.File.ReadAllBytesAsync(path);
                 return File(pic, MapContentType(path));
             }
-            catch (System.IO.FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 _logger.LogError("Picture not found!");
                 return NotFound();
@@ -58,7 +58,7 @@ namespace ResourceServer.Controllers
 
                 try
                 {
-                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
                     {
                         await file.CopyToAsync(fileStream);
                     }
@@ -77,6 +77,27 @@ namespace ResourceServer.Controllers
 
             _logger.LogError("Wrong file format or no file given.");
             return BadRequest();
+        }
+
+        [HttpDelete("{idAp}")]
+        public IActionResult DeleteImg(int idAp, string filename)
+        {
+            var path = $"/data/pictures/{idAp}/{filename}";
+            try
+            {
+                _logger.LogDebug("Deleting picture " + path);
+                //System.IO.File.SetAttributes(path, FileAttributes.Normal);
+                System.IO.File.Delete(path);
+
+                TrueHomeContext.DeletePictureRef(idAp, filename);
+
+                return Ok();
+            }
+            catch (FileNotFoundException)
+            {
+                _logger.LogError("Picture not found!");
+                return NotFound();
+            }
         }
 
         private string MapContentType(string path)
