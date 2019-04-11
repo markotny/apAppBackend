@@ -21,10 +21,18 @@ namespace ResourceServer.Controllers
         [HttpPost]
         public string Get(LimitOffset limit_offset)
         {
-            int limit = limit_offset.limit;
-            int offset = limit_offset.offset;
+            var limit = limit_offset.limit;
+            var offset = limit_offset.offset;
 
-            ApartmentJSON aps = TrueHomeContext.getApartments(limit, offset);
+            var aps = TrueHomeContext.getApartments(limit, offset);
+
+            //TODO: change prepended address to env variable
+            foreach (var ap in aps.apartmentsList)
+            {
+                ap.ImgList = ap.ImgList.Select(fileName =>
+                    $"http://localhost:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+            }
+
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
@@ -32,7 +40,10 @@ namespace ResourceServer.Controllers
         [HttpGet("{id}", Name = "Get")]
         public string Get(int id)
         {
-            Apartment ap = TrueHomeContext.getApartment(id);
+            var ap = TrueHomeContext.getApartment(id);
+            ap.ImgList = ap.ImgList.Select(fileName =>
+                $"http://localhost:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
