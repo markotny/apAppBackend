@@ -20,6 +20,7 @@ services:
     volumes:
       - ~/Https:/root/.aspnet/https:ro
       - ~/UserSecrets:/root/.microsoft/usersecrets:ro
+      - pictures:/data/pictures
 
   postgresDB:
     environment:
@@ -31,4 +32,7 @@ services:
     restart: always
     volumes:
       - /docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      
+      - pictures:/data/pictures
+
+volumes:
+  pictures:

@@ -30,7 +30,7 @@ namespace ResourceServer.Controllers
             foreach (var ap in aps.apartmentsList)
             {
                 ap.ImgList = ap.ImgList.Select(fileName =>
-                    $"http://localhost:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                    $"http://159.65.168.123:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
             }
 
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
@@ -42,7 +42,7 @@ namespace ResourceServer.Controllers
         {
             var ap = TrueHomeContext.getApartment(id);
             ap.ImgList = ap.ImgList.Select(fileName =>
-                $"http://localhost:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                $"http://159.65.168.123:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
 
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
