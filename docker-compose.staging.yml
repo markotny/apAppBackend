@@ -3,7 +3,7 @@ version: '3.4'
 services:
   authserver:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "50648:80"
