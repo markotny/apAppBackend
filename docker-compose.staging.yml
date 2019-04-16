@@ -15,6 +15,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - AuthSrvContainerUrl=http://authServer:80
+      - ResourceSrvUrl=http://159.65.168.123:50649
+      - DefaultConnection=Host=postgresDB;Username=postgres;Password=admin;Database=TrueHomeDB
+      - MigrationConnection=Host=postgresDB;Username=postgres;Password=admin
     ports:
       - "50649:80"
     volumes:

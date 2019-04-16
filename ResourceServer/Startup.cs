@@ -53,7 +53,7 @@ namespace ResourceServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "http://authServer:80";
+                    options.Authority = Configuration["AuthSrvContainerUrl"];
                     options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
@@ -61,7 +61,7 @@ namespace ResourceServer
 
             services.AddHttpClient(
                 "auth",
-                c => { c.BaseAddress = new Uri("http://authServer:80/"); });
+                c => { c.BaseAddress = new Uri(Configuration["AuthSrvContainerUrl"]); });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

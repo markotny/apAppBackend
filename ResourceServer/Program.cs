@@ -8,6 +8,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 using ResourceServer.Migrations;
 
 namespace ResourceServer
@@ -27,6 +28,21 @@ namespace ResourceServer
                 {
                     options.Listen(IPAddress.Any, 80);         // http:*:80
                 })
-                .UseStartup<Startup>();
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var env = hostingContext.HostingEnvironment;
+
+                    var logConfigPath = "nlog.config";
+
+                    if (env.IsDevelopment())
+                        logConfigPath = "nlog.Development.config";
+
+                    else if (env.IsStaging())
+                        logConfigPath = "nlog.Staging.config";
+
+                    env.ConfigureNLog(logConfigPath);
+                })
+                .UseStartup<Startup>()
+                .UseNLog();
     }
 }
