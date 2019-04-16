@@ -62,6 +62,8 @@ namespace ResourceServer
             services.AddHttpClient(
                 "auth",
                 c => { c.BaseAddress = new Uri(Configuration["AuthSrvContainerUrl"]); });
+
+            services.AddSwaggerDocument();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,6 +80,9 @@ namespace ResourceServer
 
             //app.UseHttpsRedirection();
             app.UseAuthentication();
+
+            app.UseSwagger();
+            app.UseSwaggerUi3();
 
             app.UseMvc();
         }
