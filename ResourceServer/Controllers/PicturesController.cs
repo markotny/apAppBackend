@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -13,6 +14,7 @@ namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PicturesController : ControllerBase
     {
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -27,6 +29,7 @@ namespace ResourceServer.Controllers
         }
 
         [HttpGet("{idAp}/{filename}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(int idAp, string filename)
         {
             var path = $"/data/pictures/{idAp}/{filename}";
