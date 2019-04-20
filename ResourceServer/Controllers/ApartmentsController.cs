@@ -56,7 +56,9 @@ namespace ResourceServer.Controllers
         }
 
         // CREATE POST: api/Apartments
-        [HttpPost("/add")]
+        //[HttpPost("/add")]
+        [Route("api/Apartments/add")]
+        [HttpPost]
         public async Task<IActionResult> Post(Apartment ap)
         {
             TrueHomeContext.createApartment(ap);
