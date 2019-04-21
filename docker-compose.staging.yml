@@ -18,8 +18,8 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - AuthSrvContainerUrl=http://authServer:80
       - ResourceSrvUrl=http://159.65.168.123:50649
-      - DefaultConnection=Host=postgresDB;Username=postgres;Password=admin;Database=TrueHomeDB
-      - MigrationConnection=Host=postgresDB;Username=postgres;Password=admin
+      - ConnectionStrings__DefaultConnection=Host=postgresDB;Username=postgres;Password=admin;Database=TrueHomeDB
+      - ConnectionStrings__MigrationConnection=Host=postgresDB;Username=postgres;Password=admin
     ports:
       - "50649:80"
     volumes:
