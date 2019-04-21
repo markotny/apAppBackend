@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using ResourceServer.JSONModels;
 using ResourceServer.Models;
@@ -17,6 +18,13 @@ namespace ResourceServer.Controllers
     [Authorize]
     public class ApartmentsController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
+
+        public ApartmentsController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         // GET: api/Apartments
         [HttpPost]
         public string Get(LimitOffset limit_offset)
@@ -30,7 +38,7 @@ namespace ResourceServer.Controllers
             foreach (var ap in aps.apartmentsList)
             {
                 ap.ImgList = ap.ImgList.Select(fileName =>
-                    $"http://159.65.168.123:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                    $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
             }
 
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
@@ -42,13 +50,15 @@ namespace ResourceServer.Controllers
         {
             var ap = TrueHomeContext.getApartment(id);
             ap.ImgList = ap.ImgList.Select(fileName =>
-                $"http://159.65.168.123:50649/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
 
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
         // CREATE POST: api/Apartments
-        [HttpPost("/add")]
+        //[HttpPost("/add")]
+        [Route("api/Apartments/add")]
+        [HttpPost]
         public async Task<IActionResult> Post(Apartment ap)
         {
             TrueHomeContext.createApartment(ap);

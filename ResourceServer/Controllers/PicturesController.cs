@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -13,6 +14,7 @@ namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PicturesController : ControllerBase
     {
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -27,6 +29,7 @@ namespace ResourceServer.Controllers
         }
 
         [HttpGet("{idAp}/{filename}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(int idAp, string filename)
         {
             var path = $"/data/pictures/{idAp}/{filename}";
@@ -48,21 +51,23 @@ namespace ResourceServer.Controllers
         {
             if (file.Length > 0 && file.ContentType.Contains("image"))
             {
-                var path = $"/data/pictures/{idAp}/{file.FileName}";
+                var dirPath = $"/data/pictures/{idAp}";
+                var filePath = dirPath + $"/{file.FileName}";
 
-                if (System.IO.File.Exists(path))
+                if (System.IO.File.Exists(filePath))
                 {
-                    _logger.LogWarning($"File {path} already exists, aborting.");
+                    _logger.LogWarning($"File {filePath} already exists, aborting.");
                     return Ok();
                 }
 
                 try
                 {
-                    using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
+                    var dir = Directory.CreateDirectory(dirPath);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
                     {
                         await file.CopyToAsync(fileStream);
                     }
-
+                    
                     TrueHomeContext.AddPictureRef(idAp, file.FileName);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
@@ -86,7 +91,8 @@ namespace ResourceServer.Controllers
             try
             {
                 _logger.LogDebug("Deleting picture " + path);
-                //System.IO.File.SetAttributes(path, FileAttributes.Normal);
+                
+                System.IO.File.SetAttributes(path, FileAttributes.Normal);
                 System.IO.File.Delete(path);
 
                 TrueHomeContext.DeletePictureRef(idAp, filename);
