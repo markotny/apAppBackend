@@ -33,11 +33,10 @@ namespace ResourceServer.Controllers
             var offset = limit_offset.offset;
 
             var aps = TrueHomeContext.getApartments(limit, offset);
-
-            //TODO: change prepended address to env variable
+            
             foreach (var ap in aps.apartmentsList)
             {
-                ap.ImgList = ap.ImgList.Select(fileName =>
+                ap.ImgList = ap.ImgList?.Select(fileName =>
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
             }
 
@@ -61,6 +60,8 @@ namespace ResourceServer.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(Apartment ap)
         {
+            //TODO: get user ID from token and inset into ap.IdUser
+            
             var id = await TrueHomeContext.createApartment(ap);
             return Ok(id);
         }
