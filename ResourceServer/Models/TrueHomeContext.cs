@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ResourceServer.Models
 {
@@ -145,18 +146,22 @@ namespace ResourceServer.Models
             }
         }
         //Create Apartment
-        public static void createApartment(Apartment ap)
+        public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
                     "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
                     " VALUES "+
-                    "(@Name,@City,@Street,@Address,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser);";
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
+                    "RETURNING ID_Ap";
 
+            int id;
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                connection.Execute(query, ap);
+                id = await connection.ExecuteScalarAsync<int>(query, ap);
             }
+
+            return id;
         }
         //Delete Apartment
         public static void deleteApartment(int id)
