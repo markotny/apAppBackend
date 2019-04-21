@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ResourceServer.JSONModels;
+using ResourceServer.Models;
 
 namespace ResourceServer.Controllers
 {
@@ -79,9 +80,20 @@ namespace ResourceServer.Controllers
                     new KeyValuePair<string, string>("Password", registerJson.Password)
                 }));
 
-            //TODO: add new user to Users table
             var str = await response.Content.ReadAsStringAsync();
-            return JObject.Parse("{\"RegisterStatus\": " + str + "}");
+            if (str.Length <= 1)
+                return JObject.Parse("{\"RegisterStatus\": " + str + "}");
+
+            var user = new User
+            {
+                Login = registerJson.Login,
+                Email = registerJson.Email,
+                IDRole = 1, //TODO: assign proper role ID
+                ID_User = str
+            };
+            await TrueHomeContext.AddUser(user);
+
+            return JObject.Parse("{\"RegisterStatus\": 1}");
         }
     }
 }

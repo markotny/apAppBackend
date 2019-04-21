@@ -180,30 +180,30 @@ namespace AuthServer.Controllers
 
 
         [HttpPost("~/connect/register")]
-        public async Task<int> Register(RegisterJSON input)
+        public async Task<string> Register(RegisterJSON input)
         {
             var user = await _userManager.FindByNameAsync(input.Login);
             if (user != null)
             {
                 _logger.LogDebug("Account with username " + input.Login + " already exists.");
-                return 3;
+                return "3";
             }
 
             user = await _userManager.FindByEmailAsync(input.Email);
             if (user != null)
             {
                 _logger.LogDebug("Account with email " + input.Email + " already exists.");
-                return 2;
+                return "2";
             }
 
             user = new IdentityUser { UserName = input.Login, Email = input.Email };
             var result = await _userManager.CreateAsync(user, input.Password);
 
             if (!result.Succeeded)
-                return 0;
+                return "0";
 
             _logger.LogInformation("Created new account with username " + input.Login);
-            return 1;
+            return user.Id;
         }
     }
 }
