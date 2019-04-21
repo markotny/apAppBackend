@@ -61,8 +61,8 @@ namespace ResourceServer.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(Apartment ap)
         {
-            TrueHomeContext.createApartment(ap);
-            return NoContent();
+            var id = await TrueHomeContext.createApartment(ap);
+            return Ok(id);
         }
 
         // UPDATE PUT: api/Apartments/5
