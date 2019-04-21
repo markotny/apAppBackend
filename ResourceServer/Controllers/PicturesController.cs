@@ -84,7 +84,7 @@ namespace ResourceServer.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("{idAp}")]
+        [HttpDelete("{idAp}/{filename}")]
         public IActionResult DeleteImg(int idAp, string filename)
         {
             var path = $"/data/pictures/{idAp}/{filename}";
