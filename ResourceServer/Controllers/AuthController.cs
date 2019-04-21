@@ -31,6 +31,8 @@ namespace ResourceServer.Controllers
         [HttpPost]
         public async Task<JObject> login(LoginJSON loginJson)
         {
+            //TODO: maybe? check if user exists in Users table
+
             var client = _clientFactory.CreateClient("auth");
             var response = await client.PostAsync(
                 "connect/token",
@@ -76,7 +78,8 @@ namespace ResourceServer.Controllers
                     new KeyValuePair<string, string>("Email", registerJson.Email),
                     new KeyValuePair<string, string>("Password", registerJson.Password)
                 }));
-            
+
+            //TODO: add new user to Users table
             var str = await response.Content.ReadAsStringAsync();
             return JObject.Parse("{\"RegisterStatus\": " + str + "}");
         }
