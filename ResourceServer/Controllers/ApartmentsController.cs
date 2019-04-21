@@ -57,7 +57,7 @@ namespace ResourceServer.Controllers
 
         // CREATE POST: api/Apartments
         //[HttpPost("/add")]
-        [Route("/add")]
+        [Route("add")]
         [HttpPost]
         public async Task<IActionResult> Post(Apartment ap)
         {
