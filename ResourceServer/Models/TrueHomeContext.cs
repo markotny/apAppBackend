@@ -57,7 +57,7 @@ namespace ResourceServer.Models
         //Add new user
         public static async Task AddUser(User user)
         {
-            query = @"INSERT INTO user " +
+            query = @"INSERT INTO public.user " +
                     "VALUES " +
                     "(@ID_User,@Login,@Email,@IDRole);";
             
