@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ResourceServer.JSONModels;
 using ResourceServer.Models;
@@ -19,10 +20,14 @@ namespace ResourceServer.Controllers
     public class ApartmentsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
 
-        public ApartmentsController(IConfiguration configuration)
+        public ApartmentsController(
+            IConfiguration configuration,
+            ILogger<AuthController> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         // GET: api/Apartments
@@ -37,7 +42,8 @@ namespace ResourceServer.Controllers
             foreach (var ap in aps.apartmentsList)
             {
                 ap.ImgList = ap.ImgList?.Select(fileName =>
-                    $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                    $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
+                ).ToArray();
             }
 
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
@@ -49,19 +55,20 @@ namespace ResourceServer.Controllers
         {
             var ap = TrueHomeContext.getApartment(id);
             ap.ImgList = ap.ImgList.Select(fileName =>
-                $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/" + fileName).ToArray();
+                $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
+            ).ToArray();
 
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
         // CREATE POST: api/Apartments
-        //[HttpPost("/add")]
-        [Route("add")]
-        [HttpPost]
+        [HttpPost("add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
-            //TODO: get user ID from token and inset into ap.IdUser
-            
+            var userId = User.FindFirst("sub")?.Value;
+            _logger.LogInformation("Adding new apartment owned by " + User.Identity.Name);
+
+            ap.IDUser = userId;
             var id = await TrueHomeContext.createApartment(ap);
             return Ok(id);
         }

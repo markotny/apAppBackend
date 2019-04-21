@@ -14,7 +14,7 @@ namespace ResourceServer.Models
     {
         private static String query;
         //Get User by Login
-        public static User getUser(String login)
+        public static User getUserFromLogin(String login)
         {
             query = @"SELECT * FROM User WHERE Login = @login;";
 
@@ -34,7 +34,7 @@ namespace ResourceServer.Models
             return user;
         }
         //Get User by ID
-        public static User getUser(int id)
+        public static User getUser(string id)
         {
             query = @"SELECT * FROM User WHERE ID_User = @id;";
 
@@ -53,6 +53,21 @@ namespace ResourceServer.Models
             }
             return user;
         }
+
+        //Add new user
+        public static async Task AddUser(User user)
+        {
+            query = @"INSERT INTO user " +
+                    "VALUES " +
+                    "(@ID_User,@Login,@Email,@IDRole);";
+            
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                await connection.ExecuteAsync(query, user);
+            }
+        }
+        
         //Get Apartment by id
         public static Apartment getApartment(int id)
         {

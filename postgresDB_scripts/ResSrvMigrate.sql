@@ -9,7 +9,7 @@ CREATE TABLE "role" (
 );
 				
 CREATE TABLE "user" (
-	ID_User       SERIAL,
+	ID_User       text NOT NULL,
 	Login         varchar (100) NOT NULL,
 	Email         varchar (100) NOT NULL,
 	IDRole        INTEGER,
@@ -28,7 +28,7 @@ CREATE TABLE "apartment" (
 	Rate            numeric (2,1),
 	Lat             numeric (9,7) NOT NULL,
 	Long            numeric (10,7)NOT NULL,
-	IDUser          INTEGER, 
+	IDUser          text NOT NULL, 
 	CONSTRAINT pk_apartment PRIMARY KEY(ID_Ap),
 	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT
 );
