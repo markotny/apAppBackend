@@ -200,7 +200,9 @@ namespace ResourceServer.Models
         public static void AddPictureRef(int id, string fileName)
         {
             var apartment = getApartment(id);
-            apartment.ImgList = apartment.ImgList.Concat(new[] {fileName}).ToArray();
+            apartment.ImgList = apartment.ImgList
+                                    ?.Concat(new[] {fileName}).ToArray() 
+                                    ?? new[] {fileName};
             updateApartment(apartment);
 
             //TODO: make this work instead of loading whole apartment object
