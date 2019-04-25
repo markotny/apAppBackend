@@ -13,11 +13,11 @@ namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ApartmentsController : ControllerBase
     {
         // GET: api/Apartments
-        [HttpGet]
+        [HttpPost]
         public string Get(LimitOffset limit_offset)
         {
             int limit = limit_offset.limit;
@@ -35,8 +35,9 @@ namespace ResourceServer.Controllers
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
-        // CREATE POST: api/Apartments
-        [HttpPost]
+		// CREATE POST: api/Apartments
+		[HttpPost]
+		[Route("Apartments/add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
             TrueHomeContext.createApartment(ap);
