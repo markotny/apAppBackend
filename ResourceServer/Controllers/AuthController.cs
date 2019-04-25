@@ -88,12 +88,23 @@ namespace ResourceServer.Controllers
 
             var user = new User
             {
+                ID_User = str,
                 Login = registerJson.Login,
                 Email = registerJson.Email,
-                IDRole = 1, //TODO: assign proper role ID
-                ID_User = str
+                Rate = null,
+                isBlocked = false,
+                IDRole = 1 //TODO: assign proper role ID
             };
-            await TrueHomeContext.AddUser(user);
+
+            var personalData = new PersonalData
+            {
+                IDUser = str,
+                FirstName = registerJson.Name,
+                LastName = registerJson.Surname
+            };
+
+            await TrueHomeContext.addUser(user);
+            await TrueHomeContext.addPersonalData(personalData);
 
             return JObject.Parse("{\"RegisterStatus\": 1}");
         }

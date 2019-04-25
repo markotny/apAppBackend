@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using ResourceServer.Models;
 
 namespace ResourceServer.Controllers
 {
@@ -11,11 +15,49 @@ namespace ResourceServer.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        // GET: api/User
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
+
+        public UserController(
+            IConfiguration configuration,
+            ILogger<AuthController> logger)
         {
-            return new string[] { "value1", "value2" };
+            _configuration = configuration;
+            _logger = logger;
+        }
+        // Post: api/User
+        /**
+         * gets information about user
+         * **/
+        [HttpPost]
+        public string Get(string username)
+        {
+            if(username == null)
+            {
+                return "Missing username in body";
+            }
+            User user = TrueHomeContext.getUserByLogin(username);
+            if(user != null)
+            {
+                return JsonConvert.SerializeObject(user, Formatting.Indented);
+            }
+            return "Missing user with this name";
+        }
+
+        // POST: api/User/details
+        /**
+         * gets details of user
+         * **/
+        [HttpPost]
+        [Route ("User/details")]
+        public string Details(int userID)
+        {
+            PersonalData personalData = TrueHomeContext.getPersonalDataByLoginID(userID);
+            if (personalData != null)
+            {
+                return JsonConvert.SerializeObject(personalData, Formatting.Indented);
+            }
+            return "Missing user with this name";
         }
 
         // GET: api/User/5
@@ -23,12 +65,6 @@ namespace ResourceServer.Controllers
         public string Get(int id)
         {
             return "value";
-        }
-
-        // POST: api/User
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
         }
 
         // PUT: api/User/5
