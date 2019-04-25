@@ -1,9 +1,6 @@
 ﻿using Dapper;
 using Npgsql;
-<<<<<<< HEAD
-=======
 using ResourceServer.JSONModels;
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
 using ResourceServer.Resources;
 using System;
 using System.Collections.Generic;
@@ -93,19 +90,11 @@ namespace ResourceServer.Models
             return apartment;
         }
         //Get all Apartments
-<<<<<<< HEAD
-        public static IEnumerable<Apartment> getAllApartments()
-        {
-            query = @"SELECT * FROM Apartment;";
-
-            IEnumerable<Apartment> apartment = null;
-=======
         public static IList<Apartment> getAllApartments()
         {
             query = @"SELECT * FROM Apartment;";
 
             IList<Apartment> apartment = null;
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -114,8 +103,7 @@ namespace ResourceServer.Models
             }
             return apartment;
         }
-<<<<<<< HEAD
-=======
+
         //Get with limit and offset Apartments
         public static ApartmentJSON getApartments(int limit, int offset)
         {
@@ -151,7 +139,7 @@ namespace ResourceServer.Models
             
             return apJson;
         }
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
+
         //Update Apartment
         public static void updateApartment(Apartment ap)
         {
@@ -159,11 +147,8 @@ namespace ResourceServer.Models
                     "Name = @Name,"+
                     "City = @City,"+
                     "Street = @Street,"+
-<<<<<<< HEAD
                     "Address = @Address,"+
-=======
                     "ApartmentNumber = @ApartmentNumber,"+
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
                     "ImgThumb = @ImgThumb,"+
                     "ImgList = @ImgList,"+
                     "Rate = @Rate,"+
@@ -182,11 +167,7 @@ namespace ResourceServer.Models
         public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-<<<<<<< HEAD
-                    "(Name,City,Street,Address,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
-=======
                     "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
                     " VALUES "+
                     "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";

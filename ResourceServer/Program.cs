@@ -24,20 +24,14 @@ namespace ResourceServer
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-<<<<<<< HEAD
                 .UseKestrel(options =>                              // overwrites Kestrel addresses to only enable HTTP
                 {
                     options.Listen(IPAddress.Any, 80);         // http:*:80
                 })
-<<<<<<< HEAD
-=======
                 //.UseKestrel(options =>                              // overwrites Kestrel addresses to only enable HTTP
                 //{
                 //    options.Listen(IPAddress.Any, 80);         // http:*:80
                 //})
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
-                .UseStartup<Startup>();
-=======
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var env = hostingContext.HostingEnvironment;
@@ -54,6 +48,5 @@ namespace ResourceServer
                 })
                 .UseStartup<Startup>()
                 .UseNLog();
->>>>>>> origin/release/dev
     }
 }

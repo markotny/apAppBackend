@@ -8,24 +8,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-<<<<<<< HEAD
 using ResourceServer.Models;
-=======
 using ResourceServer.JSONModels;
 using ResourceServer.Models;
 using ResourceServer.Resources;
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
 
 namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-<<<<<<< HEAD
-<<<<<<< HEAD
-    //[Authorize]
-=======
     [Authorize]
->>>>>>> origin/release/dev
     public class ApartmentsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -40,18 +32,6 @@ namespace ResourceServer.Controllers
         }
 
         // GET: api/Apartments
-<<<<<<< HEAD
-        [HttpGet]
-        public string Get()
-        {
-            IEnumerable<Apartment> aps = TrueHomeContext.getAllApartments();
-=======
-    [Authorize]
-    public class ApartmentsController : ControllerBase
-    {
-        // GET: api/Apartments
-=======
->>>>>>> origin/release/dev
         [HttpPost]
         public string Get(LimitOffset limit_offset)
         {
@@ -66,12 +46,6 @@ namespace ResourceServer.Controllers
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
                 ).ToArray();
             }
-
-<<<<<<< HEAD
-            ApartmentJSON aps = TrueHomeContext.getApartments(limit, offset);
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
-=======
->>>>>>> origin/release/dev
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
@@ -87,18 +61,9 @@ namespace ResourceServer.Controllers
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
-<<<<<<< HEAD
         // CREATE POST: api/Apartments
-<<<<<<< HEAD
-        [HttpPost]
-=======
-		// CREATE POST: api/Apartments
 		[HttpPost]
 		[Route("Apartments/add")]
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
-=======
-        [HttpPost("add")]
->>>>>>> origin/release/dev
         public async Task<IActionResult> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;

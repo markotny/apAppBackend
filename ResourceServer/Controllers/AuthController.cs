@@ -2,15 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-<<<<<<< HEAD
-<<<<<<< HEAD
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
-=======
->>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
-=======
 using System.Threading.Tasks;
->>>>>>> origin/release/dev
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
