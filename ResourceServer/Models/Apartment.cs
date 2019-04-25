@@ -12,7 +12,11 @@ namespace ResourceServer.Models
         public String Name { get; set; }
         public String City { get; set; }
         public String Street { get; set; }
+<<<<<<< HEAD
         public String Address { get; set; }
+=======
+        public String ApartmentNumber { get; set; }
+>>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
         public String ImgThumb { get; set; }
         public String[] ImgList { get; set; }
         public decimal? Rate { get; set; }

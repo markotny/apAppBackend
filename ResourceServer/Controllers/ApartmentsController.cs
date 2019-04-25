@@ -5,12 +5,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+<<<<<<< HEAD
 using ResourceServer.Models;
+=======
+using ResourceServer.JSONModels;
+using ResourceServer.Models;
+using ResourceServer.Resources;
+>>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
 
 namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+<<<<<<< HEAD
     //[Authorize]
     public class ApartmentsController : ControllerBase
     {
@@ -19,6 +26,19 @@ namespace ResourceServer.Controllers
         public string Get()
         {
             IEnumerable<Apartment> aps = TrueHomeContext.getAllApartments();
+=======
+    [Authorize]
+    public class ApartmentsController : ControllerBase
+    {
+        // GET: api/Apartments
+        [HttpPost]
+        public string Get(LimitOffset limit_offset)
+        {
+            int limit = limit_offset.limit;
+            int offset = limit_offset.offset;
+
+            ApartmentJSON aps = TrueHomeContext.getApartments(limit, offset);
+>>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
@@ -30,8 +50,14 @@ namespace ResourceServer.Controllers
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
+<<<<<<< HEAD
         // CREATE POST: api/Apartments
         [HttpPost]
+=======
+		// CREATE POST: api/Apartments
+		[HttpPost]
+		[Route("Apartments/add")]
+>>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
         public async Task<IActionResult> Post(Apartment ap)
         {
             TrueHomeContext.createApartment(ap);
