@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ResourceServer.Models
 {
@@ -16,7 +17,7 @@ namespace ResourceServer.Models
     {
         private static String query;
         //Get User by Login
-        public static User getUser(String login)
+        public static User getUserFromLogin(String login)
         {
             query = @"SELECT * FROM User WHERE Login = @login;";
 
@@ -36,7 +37,7 @@ namespace ResourceServer.Models
             return user;
         }
         //Get User by ID
-        public static User getUser(int id)
+        public static User getUser(string id)
         {
             query = @"SELECT * FROM User WHERE ID_User = @id;";
 
@@ -55,6 +56,21 @@ namespace ResourceServer.Models
             }
             return user;
         }
+
+        //Add new user
+        public static async Task AddUser(User user)
+        {
+            query = @"INSERT INTO public.user " +
+                    "VALUES " +
+                    "(@ID_User,@Login,@Email,@IDRole);";
+            
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                await connection.ExecuteAsync(query, user);
+            }
+        }
+        
         //Get Apartment by id
         public static Apartment getApartment(int id)
         {
@@ -73,6 +89,7 @@ namespace ResourceServer.Models
                 connection.Open();
                 apartment = connection.Query<Apartment>(query, dbParams).FirstOrDefault();
             }
+
             return apartment;
         }
         //Get all Apartments
@@ -162,7 +179,7 @@ namespace ResourceServer.Models
             }
         }
         //Create Apartment
-        public static void createApartment(Apartment ap)
+        public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
 <<<<<<< HEAD
@@ -171,13 +188,17 @@ namespace ResourceServer.Models
                     "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
 >>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
                     " VALUES "+
-                    "(@Name,@City,@Street,@Address,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser);";
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
+                    "RETURNING ID_Ap";
 
+            int id;
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                connection.Execute(query, ap);
+                id = await connection.ExecuteScalarAsync<int>(query, ap);
             }
+
+            return id;
         }
         //Delete Apartment
         public static void deleteApartment(int id)
@@ -196,6 +217,46 @@ namespace ResourceServer.Models
                 connection.Open();
                 connection.Execute(query, dbParams);
             }
+        }
+        //Add picture reference
+        public static void AddPictureRef(int id, string fileName)
+        {
+            var apartment = getApartment(id);
+            apartment.ImgList = apartment.ImgList
+                                    ?.Concat(new[] {fileName}).ToArray() 
+                                    ?? new[] {fileName};
+            updateApartment(apartment);
+
+            //TODO: make this work instead of loading whole apartment object
+            //query = @"SELECT ImgList FROM Apartment WHERE id_ap = @id;";
+            //var updQuery = @"UPDATE Apartment SET ImgList = @imgList WHERE id_ap = @id;";
+
+            //using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            //{
+            //    connection.Open();
+            //    var imgList = connection.Query<string[]>(query, new {id}).FirstOrDefault();
+            //    imgList.Append(fileName);
+            //    connection.Execute(updQuery, new {imgList, id});
+            //}
+        }
+        //Delete picture reference
+        public static void DeletePictureRef(int id, string fileName)
+        {
+            var apartment = getApartment(id);
+            apartment.ImgList = apartment.ImgList.Where(file => file != fileName).ToArray();
+            updateApartment(apartment);
+
+            //TODO: make this work instead of loading whole apartment object
+            //query = @"SELECT ImgList FROM Apartment WHERE id_ap = @id;";
+            //var updQuery = @"UPDATE Apartment SET ImgList = @imgList WHERE id_ap = @id;";
+
+            //using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            //{
+            //    connection.Open();
+            //    var imgList = connection.Query<string[]>(query, new {id}).FirstOrDefault();
+            //    imgList.Append(fileName);
+            //    connection.Execute(updQuery, new {imgList, id});
+            //}
         }
     }
 }

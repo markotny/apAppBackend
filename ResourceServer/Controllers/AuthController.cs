@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
 =======
 >>>>>>> 6114ad476b13f28b615b7ce6ba851e6a8616d6a3
+=======
+using System.Threading.Tasks;
+>>>>>>> origin/release/dev
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using ResourceServer.JSONModels;
+using ResourceServer.Models;
 
 namespace ResourceServer.Controllers
 {
@@ -18,61 +27,81 @@ namespace ResourceServer.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IHttpClientFactory clientFactory)
+        public AuthController(IHttpClientFactory clientFactory,
+            ILogger<AuthController> logger)
         {
             _clientFactory = clientFactory;
+            _logger = logger;
         }
 
         // POST: api/Auth/login
         [HttpPost]
-        public HttpResponseMessage login()//[FromBody] string value)
+        public async Task<JObject> login(LoginJSON loginJson)
         {
+            //TODO: maybe? check if user exists in Users table
+
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
+            var response = await client.PostAsync(
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("username", "x@x.x"),
-                    new KeyValuePair<string, string>("password", "P@ssw0rd"),
+                    new KeyValuePair<string, string>("username", loginJson.Login),
+                    new KeyValuePair<string, string>("password", loginJson.Password),
                     new KeyValuePair<string, string>("grant_type", "password"),
                     new KeyValuePair<string, string>("scope", "offline_access")
                 }));
-            
-            return response.Result;
+
+            var str = await response.Content.ReadAsStringAsync();
+            return JObject.Parse(str);
         }
 
         // POST: api/Auth/refresh
         [HttpPost]
-        public HttpResponseMessage refresh()//[FromBody] string value)
+        public async Task<JObject> refresh(RefreshJSON refreshJson)
         {
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
+            var response = await client.PostAsync(
                 "connect/token",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                    new KeyValuePair<string, string>("refresh_token", "token...")
+                    new KeyValuePair<string, string>("refresh_token", refreshJson.RefreshToken)
                 }));
 
-            return response.Result;
+            var str = await response.Content.ReadAsStringAsync();
+            return JObject.Parse(str);
         }
 
         // POST: api/Auth/register
         [HttpPost]
-        public HttpResponseMessage register()//[FromBody] string value)
+        public async Task<JObject> register(RegisterJSON registerJson)
         {
             var client = _clientFactory.CreateClient("auth");
-            var response = client.PostAsync(
-                "Identity/Account/Register",
+            var response = await client.PostAsync(
+                "connect/register",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("Email", "x@x.x"),
-                    new KeyValuePair<string, string>("Password", "P@ssw0rd"),
-                    new KeyValuePair<string, string>("ConfirmPassword", "P@ssw0rd")
+                    new KeyValuePair<string, string>("Login", registerJson.Login),
+                    new KeyValuePair<string, string>("Email", registerJson.Email),
+                    new KeyValuePair<string, string>("Password", registerJson.Password)
                 }));
 
-            return response.Result;
+            var str = await response.Content.ReadAsStringAsync();
+            if (str.Length <= 1)
+                return JObject.Parse("{\"RegisterStatus\": " + str + "}");
+
+            var user = new User
+            {
+                Login = registerJson.Login,
+                Email = registerJson.Email,
+                IDRole = 1, //TODO: assign proper role ID
+                ID_User = str
+            };
+            await TrueHomeContext.AddUser(user);
+
+            return JObject.Parse("{\"RegisterStatus\": 1}");
         }
     }
 }

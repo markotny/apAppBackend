@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,8 @@ namespace ResourceServer
         {
             IdentityModelEventSource.ShowPII = true;    //for debugging
 
+            services.AddSingleton<IContentTypeProvider>(new FileExtensionContentTypeProvider());
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -50,7 +53,7 @@ namespace ResourceServer
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "http://authServer:80";
+                    options.Authority = Configuration["AuthSrvContainerUrl"];
                     options.Audience = "ResourceServer";
                     options.RequireHttpsMetadata = false;
                     options.IncludeErrorDetails = true;
@@ -58,7 +61,9 @@ namespace ResourceServer
 
             services.AddHttpClient(
                 "auth",
-                c => { c.BaseAddress = new Uri("http://authServer:80/"); });
+                c => { c.BaseAddress = new Uri(Configuration["AuthSrvContainerUrl"]); });
+
+            services.AddSwaggerDocument();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,8 +78,11 @@ namespace ResourceServer
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseAuthentication();
+
+            app.UseSwagger();
+            app.UseSwaggerUi3();
 
             app.UseMvc();
         }

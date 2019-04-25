@@ -13,11 +13,16 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ~/source/repos/apappLogs/as:/var/log/apapp
       
   resourceserver:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - AuthSrvContainerUrl=http://authServer:80
+      - ResourceSrvUrl=http://localhost:50649
+      - ConnectionStrings__DefaultConnection=Host=postgresDB;Username=postgres;Password=admin;Database=TrueHomeDB
+      - ConnectionStrings__MigrationConnection=Host=postgresDB;Username=postgres;Password=admin
       #- ASPNETCORE_URLS=https://+:443;http://+:80
       #- ASPNETCORE_HTTPS_PORT=44344
     ports:
@@ -26,6 +31,8 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ~/source/repos/apappPictures:/data/pictures
+      - ~/source/repos/apappLogs/rs:/var/log/apapp
 
   postgresDB:
     environment:
@@ -37,4 +44,4 @@ services:
     restart: always
     volumes:
       - ./postgresDB_scripts:/docker-entrypoint-initdb.d
-      
+      - ~/source/repos/apappPictures:/data/pictures
