@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ResourceServer.JSONModels;
 using ResourceServer.Models;
 using ResourceServer.Resources;
@@ -63,14 +64,14 @@ namespace ResourceServer.Controllers
 
         // CREATE POST: api/Apartments
         [HttpPost("add")]
-        public async Task<IActionResult> Post(Apartment ap)
+        public async Task<JObject> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;
             _logger.LogInformation("Adding new apartment owned by " + User.Identity.Name);
 
             ap.IDUser = userId;
             var id = await TrueHomeContext.createApartment(ap);
-            return Ok(id);
+            return JObject.Parse("{\"id\": " + id + ", \"UploadStatus\": " + 1 + "}");
         }
 
         // UPDATE PUT: api/Apartments/5
