@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ResourceServer.JSONModels;
 using ResourceServer.Models;
 using ResourceServer.Resources;
 
@@ -45,7 +41,6 @@ namespace ResourceServer.Controllers
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
                 ).ToArray();
             }
-
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
@@ -62,7 +57,8 @@ namespace ResourceServer.Controllers
         }
 
         // CREATE POST: api/Apartments
-        [HttpPost("add")]
+		[HttpPost]
+		[Route("Apartments/add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;
