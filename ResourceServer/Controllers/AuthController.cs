@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using AspNet.Security.OpenIdConnect.Primitives;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -88,23 +86,12 @@ namespace ResourceServer.Controllers
 
             var user = new User
             {
-                ID_User = str,
                 Login = registerJson.Login,
                 Email = registerJson.Email,
-                Rate = null,
-                isBlocked = false,
-                IDRole = 1 //TODO: assign proper role ID
+                IDRole = 1, //TODO: assign proper role ID
+                ID_User = str
             };
-
-            var personalData = new PersonalData
-            {
-                IDUser = str,
-                FirstName = registerJson.Name,
-                LastName = registerJson.Surname
-            };
-
-            await TrueHomeContext.addUser(user);
-            await TrueHomeContext.addPersonalData(personalData);
+            await TrueHomeContext.AddUser(user);
 
             return JObject.Parse("{\"RegisterStatus\": 1}");
         }
