@@ -28,10 +28,6 @@ namespace ResourceServer
                 {
                     options.Listen(IPAddress.Any, 80);         // http:*:80
                 })
-                //.UseKestrel(options =>                              // overwrites Kestrel addresses to only enable HTTP
-                //{
-                //    options.Listen(IPAddress.Any, 80);         // http:*:80
-                //})
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var env = hostingContext.HostingEnvironment;

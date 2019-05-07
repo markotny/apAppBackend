@@ -14,90 +14,64 @@ namespace ResourceServer.Models
     {
         private static String query;
         //Get User by Login
-        public static User getUserByLogin(string login)
+        public static User getUserFromLogin(String login)
         {
-            query = $"SELECT * FROM User WHERE Login = {login};";
+            query = @"SELECT * FROM User WHERE Login = @login;";
 
             User user = null;
+
+            var parameters = new Dictionary<string, object>();
+            parameters.Add("login", login);
+
+            DynamicParameters dbParams = new DynamicParameters();
+            dbParams.AddDynamicParams(parameters);
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                user = connection.Query<User>(query).FirstOrDefault();
+                user = connection.Query<User>(query, dbParams).FirstOrDefault();
             }
             return user;
         }
         //Get User by ID
         public static User getUser(string id)
         {
-            query = $"SELECT * FROM User WHERE ID_User = {id};";
+            query = @"SELECT * FROM User WHERE ID_User = @id;";
 
             User user = null;
+
+            var parameters = new Dictionary<string, object>();
+            parameters.Add("id", id);
+
+            DynamicParameters dbParams = new DynamicParameters();
+            dbParams.AddDynamicParams(parameters);
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                user = connection.Query<User>(query).FirstOrDefault();
+                user = connection.Query<User>(query, dbParams).FirstOrDefault();
             }
             return user;
         }
 
         //Add new user
-        public static async Task addUser(User user)
+        public static async Task AddUser(User user)
         {
-            query = "INSERT INTO User " +
-                    "(ID_User, Login, Email, Rate, isBlocked, IDRole)" +
+            query = @"INSERT INTO public.user " +
                     "VALUES " +
-                    $"({user.ID_User},{user.Login},{user.Email},{user.Rate},{user.isBlocked},{user.IDRole});";
+                    "(@ID_User,@Login,@Email,@IDRole);";
             
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                await connection.ExecuteAsync(query);
+                await connection.ExecuteAsync(query, user);
             }
         }
-
-        public static PersonalData getPersonalDataByLoginID(int userID)
-        {
-            query = "SELECT * FROM PersonalData PD " +
-                    "LEFT JOIN User U " +
-                    $"ON PD.IDUser = {userID}";
-
-            PersonalData ps = null;
-
-            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
-            {
-                connection.Open();
-                ps = connection.Query<PersonalData>(query).FirstOrDefault();
-            }
-            return ps;
-        }
-
-        //Add new user
-        public static async Task addPersonalData(PersonalData personalData)
-        {
-            if(personalData.BirthDate == null)
-            {
-                personalData.BirthDate = new DateTime(1337, 4, 20);
-            }
-
-            query = "INSERT INTO PersonalData " +
-                    "(FirstName, LastName, BirthDate, IDUser)" +
-                    "VALUES " +
-                    $"({personalData.FirstName},{personalData.LastName}," +
-                    $"{personalData.BirthDate},{personalData.IDUser});";
-
-            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
-            {
-                connection.Open();
-                await connection.ExecuteAsync(query);
-            }
-        }
-
+        
         //Get Apartment by id
         public static Apartment getApartment(int id)
         {
-            query = $"SELECT * FROM Apartment WHERE id_ap = {id};";
+            query = @"SELECT * FROM Apartment WHERE id_ap = @id;";
 
             Apartment apartment = null;
 
@@ -118,7 +92,7 @@ namespace ResourceServer.Models
         //Get all Apartments
         public static IList<Apartment> getAllApartments()
         {
-            query = "SELECT * FROM Apartment;";
+            query = @"SELECT * FROM Apartment;";
 
             IList<Apartment> apartment = null;
 
@@ -129,7 +103,6 @@ namespace ResourceServer.Models
             }
             return apartment;
         }
-
         //Get with limit and offset Apartments
         public static ApartmentJSON getApartments(int limit, int offset)
         {
@@ -165,7 +138,6 @@ namespace ResourceServer.Models
             
             return apJson;
         }
-
         //Update Apartment
         public static void updateApartment(Apartment ap)
         {
@@ -173,7 +145,6 @@ namespace ResourceServer.Models
                     "Name = @Name,"+
                     "City = @City,"+
                     "Street = @Street,"+
-                    "Address = @Address,"+
                     "ApartmentNumber = @ApartmentNumber,"+
                     "ImgThumb = @ImgThumb,"+
                     "ImgList = @ImgList,"+
@@ -210,13 +181,19 @@ namespace ResourceServer.Models
         //Delete Apartment
         public static void deleteApartment(int id)
         {
-            query = "DELETE FROM Apartment" +
-                    $" WHERE id_ap = {id};";
+            query = @"DELETE FROM Apartment" +
+                    " WHERE id_ap = @id;";
+
+            var parameters = new Dictionary<string, object>();
+            parameters.Add("id", id);
+
+            DynamicParameters dbParams = new DynamicParameters();
+            dbParams.AddDynamicParams(parameters);
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                connection.Execute(query);
+                connection.Execute(query, dbParams);
             }
         }
         //Add picture reference
