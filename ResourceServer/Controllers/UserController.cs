@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ResourceServer.Models;
+using ResourceServer.JSONModels;
 
 namespace ResourceServer.Controllers
 {
@@ -49,19 +50,22 @@ namespace ResourceServer.Controllers
          * gets details of user
          * **/
         [HttpPost]
-        [Route ("User/details")]
-        public string Details(int userID)
+        [Route ("details")]
+        public string Details(string userID)
         {
-            PersonalData personalData = TrueHomeContext.getPersonalDataByLoginID(userID);
-            if (personalData != null)
+            UserDetailsJSON userDetails = new UserDetailsJSON();
+            userDetails.personalData = TrueHomeContext.getPersonalDataByUserID(userID);
+            userDetails.user = TrueHomeContext.getUser(userID);
+            userDetails.apartmentList = TrueHomeContext.getUserApartmentList(userID);
+            if (userDetails.personalData != null && userDetails.user != null)
             {
-                return JsonConvert.SerializeObject(personalData, Formatting.Indented);
+                return JsonConvert.SerializeObject(userDetails, Formatting.Indented);
             }
-            return "Missing user with this name";
+            return "Missing user with this id";
         }
 
         // GET: api/User/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetUser")]
         public string Get(int id)
         {
             return "value";

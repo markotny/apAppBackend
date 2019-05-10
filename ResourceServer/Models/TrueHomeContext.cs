@@ -27,10 +27,26 @@ namespace ResourceServer.Models
             }
             return user;
         }
-        //Get User by ID
-        public static User getUser(string id)
+
+        public static IList<Apartment> getUserApartmentList(string userID)
         {
-            query = $"SELECT * FROM User WHERE ID_User = {id};";
+            query = "SELECT * FROM Apartment" +
+                    $"WHERE IDUser = '{userID}'";
+
+            IList<Apartment> apartmentList = null;
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                apartmentList = connection.Query<Apartment>(query).ToList();
+            }
+
+            return apartmentList;
+        }
+        //Get User by ID
+        public static User getUser(string userID)
+        {
+            query = $"SELECT * FROM User WHERE ID_User = '{userID}';";
 
             User user = null;
 
@@ -45,11 +61,13 @@ namespace ResourceServer.Models
         //Add new user
         public static async Task addUser(User user)
         {
+            user.isBlocked = false;
+
             query = "INSERT INTO User " +
-                    "(ID_User, Login, Email, Rate, isBlocked, IDRole)" +
+                    "(ID_User, Login, Email, isBlocked, IDRole)" +
                     "VALUES " +
-                    $"({user.ID_User},{user.Login},{user.Email},{user.Rate},{user.isBlocked},{user.IDRole});";
-            
+                    $"({user.ID_User},{user.Login},{user.Email},{user.isBlocked},{user.IDRole});";
+
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
@@ -57,11 +75,12 @@ namespace ResourceServer.Models
             }
         }
 
-        public static PersonalData getPersonalDataByLoginID(int userID)
+        public static PersonalData getPersonalDataByUserID(string userID)
         {
-            query = "SELECT * FROM PersonalData PD " +
-                    "LEFT JOIN User U " +
-                    $"ON PD.IDUser = {userID}";
+            query = "SELECT * FROM PersonalData AS PD " +
+                    "LEFT JOIN \"user\" AS U " +
+                    "ON PD.IDUser = U.ID_User " +
+                    $"WHERE PD.IDUser = '{userID}';";
 
             PersonalData ps = null;
 
@@ -76,7 +95,7 @@ namespace ResourceServer.Models
         //Add new user
         public static async Task addPersonalData(PersonalData personalData)
         {
-            if(personalData.BirthDate == null)
+            if (personalData.BirthDate == null)
             {
                 personalData.BirthDate = new DateTime(1337, 4, 20);
             }
@@ -101,16 +120,10 @@ namespace ResourceServer.Models
 
             Apartment apartment = null;
 
-            var parameters = new Dictionary<string, object>();
-            parameters.Add("id", id);
-
-            DynamicParameters dbParams = new DynamicParameters();
-            dbParams.AddDynamicParams(parameters);
-
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                apartment = connection.Query<Apartment>(query, dbParams).FirstOrDefault();
+                apartment = connection.Query<Apartment>(query).FirstOrDefault();
             }
 
             return apartment;
@@ -133,25 +146,18 @@ namespace ResourceServer.Models
         //Get with limit and offset Apartments
         public static ApartmentJSON getApartments(int limit, int offset)
         {
-            query = @"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT @limit OFFSET @offset;";
+            query = $"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Apartment> apartments = null;
             ApartmentJSON apJson = new ApartmentJSON();
 
-            var parameters = new Dictionary<string, object>();
-            parameters.Add("limit", limit + 1);
-            parameters.Add("offset", offset);
-
-            DynamicParameters dbParams = new DynamicParameters();
-            dbParams.AddDynamicParams(parameters);
-
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
                 connection.Open();
-                apartments = connection.Query<Apartment>(query, dbParams).ToList();
+                apartments = connection.Query<Apartment>(query).ToList();
             }
 
-            if(apartments.Count <= limit)
+            if (apartments.Count <= limit)
             {
                 apJson.hasMore = false;
                 apJson.apartmentsList = apartments;
@@ -162,26 +168,27 @@ namespace ResourceServer.Models
                 apJson.hasMore = true;
                 apJson.apartmentsList = apartments;
             }
-            
+
             return apJson;
         }
 
         //Update Apartment
         public static void updateApartment(Apartment ap)
         {
-            query = @"UPDATE Apartment SET "+
-                    "Name = @Name,"+
-                    "City = @City,"+
-                    "Street = @Street,"+
-                    "Address = @Address,"+
-                    "ApartmentNumber = @ApartmentNumber,"+
-                    "ImgThumb = @ImgThumb,"+
-                    "ImgList = @ImgList,"+
-                    "Rate = @Rate,"+
-                    "Lat = @Lat,"+
-                    "Long = @Long,"+
-                    "IDUser = @IDUser"+
-                    " WHERE ID_Ap = @ID_Ap;";
+            query = @"UPDATE Apartment SET " +
+                    "Name = @Name," +
+                    "City = @City," +
+                    "Street = @Street," +
+                    "Address = @Address," +
+                    "ApartmentNumber = @ApartmentNumber," +
+                    "ImgThumb = @ImgThumb," +
+                    "ImgList = @ImgList," +
+                    "Rate = @Rate," +
+                    "Lat = @Lat," +
+                    "Long = @Long," +
+                    "IDUser = @IDUser," +
+                    "Description = @Description " +
+                    "WHERE ID_Ap = @ID_Ap;";
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -194,7 +201,7 @@ namespace ResourceServer.Models
         {
             query = @"INSERT INTO Apartment " +
                     "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
-                    " VALUES "+
+                    " VALUES " +
                     "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";
 
@@ -224,8 +231,8 @@ namespace ResourceServer.Models
         {
             var apartment = getApartment(id);
             apartment.ImgList = apartment.ImgList
-                                    ?.Concat(new[] {fileName}).ToArray() 
-                                    ?? new[] {fileName};
+                                    ?.Concat(new[] { fileName }).ToArray()
+                                    ?? new[] { fileName };
             updateApartment(apartment);
 
             //TODO: make this work instead of loading whole apartment object

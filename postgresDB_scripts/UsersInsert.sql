@@ -1,14 +1,16 @@
 INSERT INTO "AspNetUsers"
 VALUES ('fddb44a3-43ae-44e2-b8a2-0962fa6be039', 'a@a.a', 'A@A.A', 'a@a.a', 'A@A.A', 'f', 'AQAAAAEAACcQAAAAEJwHuI9fREiOjP1gpbhmIH4UMJD+YIlvcR9Od5uvIPTWXp8KjXLCk6ng1PVqBPV91A==', 'CSOETKFG3JI46PNL32HOBWZDGEFAWCPN', 'cc4b6777-0e78-490a-a248-e503babbafc0', NULL, 'f', 'f', NULL, 't', 0 );
 
-
 \c "TrueHomeDB"
 
 INSERT INTO "role" (RoleName)
 VALUES ('admin');
 
-INSERT INTO "user"
-VALUES ('fddb44a3-43ae-44e2-b8a2-0962fa6be039','a@a.a','a@a.a',1);
+INSERT INTO "user"(ID_User, Login, Email, isBlocked, IDRole)
+VALUES ('fddb44a3-43ae-44e2-b8a2-0962fa6be039','a@a.a','a@a.a','f',1);
+
+INSERT INTO "personaldata"(FirstName, LastName, BirthDate, IDUser)
+VALUES('Jan', 'Kowalski', '1990-06-01','fddb44a3-43ae-44e2-b8a2-0962fa6be039');
 
 INSERT INTO "apartment" (name,city,street,apartmentNumber,imgthumb,imglist,rate,lat,long,iduser) 
 VALUES 

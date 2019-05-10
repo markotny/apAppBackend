@@ -34,7 +34,7 @@ namespace ResourceServer.Controllers
             var offset = limit_offset.offset;
 
             var aps = TrueHomeContext.getApartments(limit, offset);
-            
+
             foreach (var ap in aps.apartmentsList)
             {
                 ap.ImgList = ap.ImgList?.Select(fileName =>
@@ -45,7 +45,7 @@ namespace ResourceServer.Controllers
         }
 
         // GET: api/Apartments/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetApartment")]
         public string Get(int id)
         {
             var ap = TrueHomeContext.getApartment(id);
@@ -58,7 +58,7 @@ namespace ResourceServer.Controllers
 
         // CREATE POST: api/Apartments
 		[HttpPost]
-		[Route("Apartments/add")]
+		[Route("add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;
