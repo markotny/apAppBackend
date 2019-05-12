@@ -51,12 +51,12 @@ namespace ResourceServer.Controllers
          * **/
         [HttpPost]
         [Route ("details")]
-        public string Details(string userID)
+        public string Details([FromBody] UserIDJSON userIDJSON)
         {
             UserDetailsJSON userDetails = new UserDetailsJSON();
-            userDetails.personalData = TrueHomeContext.getPersonalDataByUserID(userID);
-            userDetails.user = TrueHomeContext.getUser(userID);
-            userDetails.apartmentList = TrueHomeContext.getUserApartmentList(userID);
+            userDetails.personalData = TrueHomeContext.getPersonalDataByUserID(userIDJSON.userID);
+            userDetails.user = TrueHomeContext.getUser(userIDJSON.userID);
+            userDetails.apartmentList = TrueHomeContext.getUserApartmentList(userIDJSON.userID);
             if (userDetails.personalData != null && userDetails.user != null)
             {
                 return JsonConvert.SerializeObject(userDetails, Formatting.Indented);
