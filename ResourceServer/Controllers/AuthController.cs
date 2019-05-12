@@ -83,6 +83,8 @@ namespace ResourceServer.Controllers
                 }));
 
             var str = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Response from authServer: " + str);
+
             if (str.Length <= 1)
                 return JObject.Parse("{\"RegisterStatus\": " + str + "}");
 

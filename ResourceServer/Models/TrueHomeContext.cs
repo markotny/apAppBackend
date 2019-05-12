@@ -66,7 +66,7 @@ namespace ResourceServer.Models
             query = "INSERT INTO \"user\" " +
                     "(ID_User, Login, Email, isBlocked, IDRole)" +
                     "VALUES " +
-                    $"({user.ID_User},{user.Login},{user.Email},{user.isBlocked},{user.IDRole});";
+                    $"('{user.ID_User}','{user.Login}','{user.Email}',{user.isBlocked},{user.IDRole});";
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -103,8 +103,8 @@ namespace ResourceServer.Models
             query = "INSERT INTO PersonalData " +
                     "(FirstName, LastName, BirthDate, IDUser)" +
                     "VALUES " +
-                    $"({personalData.FirstName},{personalData.LastName}," +
-                    $"{personalData.BirthDate},{personalData.IDUser});";
+                    $"('{personalData.FirstName}','{personalData.LastName}'," +
+                    $"'{personalData.BirthDate}','{personalData.IDUser}');";
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -179,7 +179,6 @@ namespace ResourceServer.Models
                     "Name = @Name," +
                     "City = @City," +
                     "Street = @Street," +
-                    "Address = @Address," +
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +

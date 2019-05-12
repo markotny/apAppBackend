@@ -23,7 +23,7 @@ namespace ResourceServer.Helpers
     
         public async Task Invoke(HttpContext context)
         {  
-            _logger.LogInformation(await FormatRequest(context.Request));
+            _logger.LogTrace(await FormatRequest(context.Request));
 
             var originalBodyStream = context.Response.Body;
 
@@ -33,7 +33,7 @@ namespace ResourceServer.Helpers
 
                 await _next(context);
 
-                _logger.LogInformation(await FormatResponse(context.Response));
+                _logger.LogTrace(await FormatResponse(context.Response));
                 await responseBody.CopyToAsync(originalBodyStream);
             }
         }
