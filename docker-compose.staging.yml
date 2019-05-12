@@ -38,4 +38,4 @@ services:
     restart: always
     volumes:
       - /docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - /data/pictures:/data/pictures
+      
