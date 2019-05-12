@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Models
 {
@@ -75,7 +76,7 @@ namespace ResourceServer.Models
             }
         }
 
-        public static PersonalData getPersonalDataByUserID(string userID)
+        public static PersonalData getPersonalDataByUserID([FromBody]string userID)
         {
             query = "SELECT * FROM PersonalData AS PD " +
                     "LEFT JOIN \"user\" AS U " +
