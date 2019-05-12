@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Models
 {
@@ -66,7 +67,7 @@ namespace ResourceServer.Models
             query = "INSERT INTO \"user\" " +
                     "(ID_User, Login, Email, isBlocked, IDRole)" +
                     "VALUES " +
-                    $"({user.ID_User},{user.Login},{user.Email},{user.isBlocked},{user.IDRole});";
+                    $"('{user.ID_User}','{user.Login}','{user.Email}',{user.isBlocked},{user.IDRole});";
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -75,7 +76,7 @@ namespace ResourceServer.Models
             }
         }
 
-        public static PersonalData getPersonalDataByUserID(string userID)
+        public static PersonalData getPersonalDataByUserID([FromBody]string userID)
         {
             query = "SELECT * FROM PersonalData AS PD " +
                     "LEFT JOIN \"user\" AS U " +
@@ -103,8 +104,8 @@ namespace ResourceServer.Models
             query = "INSERT INTO PersonalData " +
                     "(FirstName, LastName, BirthDate, IDUser)" +
                     "VALUES " +
-                    $"({personalData.FirstName},{personalData.LastName}," +
-                    $"{personalData.BirthDate},{personalData.IDUser});";
+                    $"('{personalData.FirstName}','{personalData.LastName}'," +
+                    $"'{personalData.BirthDate}','{personalData.IDUser}');";
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
