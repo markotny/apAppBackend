@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ResourceServer.JSONModels;
 using ResourceServer.Models;
 using ResourceServer.Resources;
 
@@ -38,19 +34,18 @@ namespace ResourceServer.Controllers
             var offset = limit_offset.offset;
 
             var aps = TrueHomeContext.getApartments(limit, offset);
-            
+
             foreach (var ap in aps.apartmentsList)
             {
                 ap.ImgList = ap.ImgList?.Select(fileName =>
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
                 ).ToArray();
             }
-
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
         // GET: api/Apartments/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetApartment")]
         public string Get(int id)
         {
             var ap = TrueHomeContext.getApartment(id);
@@ -62,7 +57,8 @@ namespace ResourceServer.Controllers
         }
 
         // CREATE POST: api/Apartments
-        [HttpPost("add")]
+		[HttpPost]
+		[Route("add")]
         public async Task<IActionResult> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;
