@@ -16,7 +16,7 @@ namespace ResourceServer.Models
         //Get User by Login
         public static User getUserByLogin(string login)
         {
-            query = $"SELECT * FROM User WHERE Login = {login};";
+            query = $"SELECT * FROM \"user\" WHERE Login = {login};";
 
             User user = null;
 
@@ -30,7 +30,7 @@ namespace ResourceServer.Models
 
         public static IList<Apartment> getUserApartmentList(string userID)
         {
-            query = "SELECT * FROM Apartment" +
+            query = "SELECT * FROM Apartment " +
                     $"WHERE IDUser = '{userID}'";
 
             IList<Apartment> apartmentList = null;
@@ -46,7 +46,7 @@ namespace ResourceServer.Models
         //Get User by ID
         public static User getUser(string userID)
         {
-            query = $"SELECT * FROM User WHERE ID_User = '{userID}';";
+            query = $"SELECT * FROM \"user\" WHERE ID_User = '{userID}';";
 
             User user = null;
 
@@ -63,7 +63,7 @@ namespace ResourceServer.Models
         {
             user.isBlocked = false;
 
-            query = "INSERT INTO User " +
+            query = "INSERT INTO \"user\" " +
                     "(ID_User, Login, Email, isBlocked, IDRole)" +
                     "VALUES " +
                     $"({user.ID_User},{user.Login},{user.Email},{user.isBlocked},{user.IDRole});";
