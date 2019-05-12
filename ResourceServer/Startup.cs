@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using ResourceServer.Helpers;
 using ResourceServer.Resources;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -73,6 +74,8 @@ namespace ResourceServer
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseRequestResponseLogging();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
