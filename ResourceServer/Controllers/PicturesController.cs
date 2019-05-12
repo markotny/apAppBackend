@@ -14,7 +14,7 @@ namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class PicturesController : ControllerBase
     {
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -67,7 +67,7 @@ namespace ResourceServer.Controllers
                     {
                         await file.CopyToAsync(fileStream);
                     }
-                    
+
                     TrueHomeContext.AddPictureRef(idAp, file.FileName);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
@@ -91,7 +91,7 @@ namespace ResourceServer.Controllers
             try
             {
                 _logger.LogDebug("Deleting picture " + path);
-                
+
                 System.IO.File.SetAttributes(path, FileAttributes.Normal);
                 System.IO.File.Delete(path);
 

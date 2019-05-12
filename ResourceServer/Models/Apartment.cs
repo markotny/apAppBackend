@@ -18,6 +18,7 @@ namespace ResourceServer.Models
         public decimal? Rate { get; set; }
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
+        public String Description { get; set; }
         public string IDUser { get; set; }        
     }
 }
