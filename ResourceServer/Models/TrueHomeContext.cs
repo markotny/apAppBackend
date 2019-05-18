@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper.Contrib.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Models
@@ -129,6 +130,7 @@ namespace ResourceServer.Models
 
             return apartment;
         }
+
         //Get all Apartments
         public static IList<Apartment> getAllApartments()
         {
@@ -196,6 +198,16 @@ namespace ResourceServer.Models
                 connection.Execute(query, ap);
             }
         }
+
+        public static async Task<bool> UpdateApartmentAsync(Apartment ap)
+        {
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                return await connection.UpdateAsync(ap);
+            }
+        }
+
         //Create Apartment
         public static async Task<int> createApartment(Apartment ap)
         {
@@ -230,9 +242,16 @@ namespace ResourceServer.Models
         public static void AddPictureRef(int id, string fileName)
         {
             var apartment = getApartment(id);
-            apartment.ImgList = apartment.ImgList
-                                    ?.Concat(new[] { fileName }).ToArray()
-                                    ?? new[] { fileName };
+
+            if (apartment.ImgList == null)
+            {
+                apartment.ImgList = new[] {fileName};
+                apartment.ImgThumb = fileName;
+            }
+            else
+                apartment.ImgList = apartment.ImgList
+                    ?.Concat(new[] {fileName}).ToArray();
+
             updateApartment(apartment);
 
             //TODO: make this work instead of loading whole apartment object

@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using ResourceServer.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class PicturesController : ControllerBase
     {
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -47,12 +49,20 @@ namespace ResourceServer.Controllers
         }
 
         [HttpPost("{idAp}")]
-        public async Task<IActionResult> UploadImg(int idAp, [FromForm] IFormFile image)
+        public async Task<IActionResult> UploadImg(int idAp)
         {
+            IFormFile image;
+            if (HttpContext.Request.Form.Files[0] != null)
+            {
+                image = HttpContext.Request.Form.Files[0];
+            }
+            else
+                return BadRequest("Could not bind uploaded image or no image sent");
+
             if (image.Length > 0 && image.ContentType.Contains("image"))
             {
                 var dirPath = $"/data/pictures/{idAp}";
-                var filePath = dirPath + $"/{image.FileName}";
+                var filePath = $"{dirPath}/{image.FileName}";
 
                 if (System.IO.File.Exists(filePath))
                 {
@@ -62,13 +72,38 @@ namespace ResourceServer.Controllers
 
                 try
                 {
-                    var dir = Directory.CreateDirectory(dirPath);
+                    var ap = TrueHomeContext.getApartment(idAp);
+
+                    if (string.IsNullOrEmpty(ap.ImgThumb))
+                    {
+                        Directory.CreateDirectory(dirPath);
+
+                        var thumbName = Path.GetFileNameWithoutExtension(image.FileName) +
+                                        "_thumb" +
+                                        Path.GetExtension(image.FileName);
+
+                        using (var inputStream = image.OpenReadStream())
+                        using (var imgThumb = Image.Load(inputStream))
+                        {
+                            imgThumb.Mutate(x => x
+                                .Resize(0, 300));
+
+                            imgThumb.Save($"{dirPath}/{thumbName}");
+                        }
+
+                        ap.ImgThumb = thumbName;
+                    }
+
                     using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
                     {
                         await image.CopyToAsync(fileStream);
                     }
 
-                    TrueHomeContext.AddPictureRef(idAp, image.FileName);
+                    ap.ImgList = ap.ImgList
+                                     ?.Concat(new[] { image.FileName }).ToArray()
+                                     ?? new[] { image.FileName };
+
+                    TrueHomeContext.updateApartment(ap);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
                     return Ok();
