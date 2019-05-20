@@ -4,10 +4,8 @@ using ResourceServer.JSONModels;
 using ResourceServer.Resources;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper.Contrib.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Models
@@ -130,7 +128,7 @@ namespace ResourceServer.Models
 
             return apartment;
         }
-
+        
         //Get all Apartments
         public static IList<Apartment> getAllApartments()
         {
@@ -196,15 +194,6 @@ namespace ResourceServer.Models
             {
                 connection.Open();
                 connection.Execute(query, ap);
-            }
-        }
-
-        public static async Task<bool> UpdateApartmentAsync(Apartment ap)
-        {
-            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
-            {
-                connection.Open();
-                return await connection.UpdateAsync(ap);
             }
         }
 

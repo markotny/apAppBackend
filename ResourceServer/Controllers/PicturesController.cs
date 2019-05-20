@@ -52,17 +52,26 @@ namespace ResourceServer.Controllers
         public async Task<IActionResult> UploadImg(int idAp)
         {
             IFormFile image;
-            if (HttpContext.Request.Form.Files[0] != null)
+            try
             {
-                image = HttpContext.Request.Form.Files[0];
+                if (HttpContext.Request.Form.Files[0] != null)
+                {
+                    image = HttpContext.Request.Form.Files[0];
+                }
+                else
+                    throw new ArgumentNullException( "image","Could not bind uploaded image or no image sent");
             }
-            else
-                return BadRequest("Could not bind uploaded image or no image sent");
+            catch (Exception e)
+            {
+                _logger.LogError(e.ToString());
+                return BadRequest(e.ToString());
+            }
 
             if (image.Length > 0 && image.ContentType.Contains("image"))
             {
                 var dirPath = $"/data/pictures/{idAp}";
                 var filePath = $"{dirPath}/{image.FileName}";
+                string thumbName = null;
 
                 if (System.IO.File.Exists(filePath))
                 {
@@ -76,11 +85,12 @@ namespace ResourceServer.Controllers
 
                     if (string.IsNullOrEmpty(ap.ImgThumb))
                     {
+                        _logger.LogInformation($"Received first picture for apartment {idAp}, creating thumbnail copy");
                         Directory.CreateDirectory(dirPath);
 
-                        var thumbName = Path.GetFileNameWithoutExtension(image.FileName) +
-                                        "_thumb" +
-                                        Path.GetExtension(image.FileName);
+                        thumbName = Path.GetFileNameWithoutExtension(image.FileName) +
+                                    "_thumb" +
+                                    Path.GetExtension(image.FileName);
 
                         using (var inputStream = image.OpenReadStream())
                         using (var imgThumb = Image.Load(inputStream))
@@ -100,18 +110,41 @@ namespace ResourceServer.Controllers
                     }
 
                     ap.ImgList = ap.ImgList
-                                     ?.Concat(new[] { image.FileName }).ToArray()
-                                     ?? new[] { image.FileName };
+                                     ?.Concat(new[] {image.FileName}).ToArray()
+                                 ?? new[] {image.FileName};
 
                     TrueHomeContext.updateApartment(ap);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
                     return Ok();
                 }
+                catch (Npgsql.PostgresException e)
+                {
+                    _logger.LogError(e, "Database error while saving picture. Deleting any saved pictures");
+
+                    if (thumbName != null && System.IO.File.Exists($"{dirPath}/{thumbName}"))
+                    {
+                        System.IO.File.Delete($"{dirPath}/{thumbName}");
+                        _logger.LogInformation($"Deleted thumbnail file {dirPath}/{thumbName}");
+                    }
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                        _logger.LogInformation($"Deleted file {filePath}");
+                    }
+                    return BadRequest(e);
+
+                }
+                catch (IOException e)
+                {
+                    _logger.LogError(e,"IO exception while saving file! Database not updated");
+                    return BadRequest(e);
+                }
                 catch (Exception e)
                 {
                     _logger.LogError("Error while saving file: " + e);
-                    return BadRequest();
+                    return BadRequest(e);
                 }
             }
 
