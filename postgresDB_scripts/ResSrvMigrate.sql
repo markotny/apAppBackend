@@ -68,6 +68,79 @@ CREATE TABLE "dump" (
 	ID_PData	SERIAL
 );
 
+CREATE TYPE apartment_avg AS (
+	ID_Ap         		INTEGER,
+	Name           		varchar (100),
+	City            	varchar (100),
+	Street          	varchar (100),
+	ApartmentNumber 	varchar (20),
+	ImgThumb        	varchar (200),
+	ImgList         	varchar (200)[],
+	OwnerRating  		double precision,
+	LocationRating  	double precision,
+	StandardRating  	double precision,
+	PriceRating     	double precision,
+	Lat             	numeric (9,7),
+	Long            	numeric (10,7),
+	Description 		text,
+	IDUser          	text
+);
+
+CREATE OR REPLACE FUNCTION get_apartment(id integer) 
+ RETURNS apartment_avg
+AS $$
+DECLARE
+	result_record apartment_avg;
+BEGIN
+ SELECT 
+	ID_Ap,
+	Name,
+	City,
+	Street,
+	ApartmentNumber,
+	ImgThumb,
+	ImgList,
+	OwnerRatingSum/NULLIF(RatingsCount,0)::double precision AS OwnerRating,
+	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
+	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
+	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
+	Lat,
+	Long,
+	Description,
+	IDUser
+ INTO result_record
+ FROM apartment
+ WHERE ID_Ap=id;
+ 
+ RETURN result_record;
+END; $$ 
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION get_all_apartments()
+ RETURNS SETOF apartment_avg
+AS $$
+BEGIN
+ RETURN QUERY SELECT 
+	ID_Ap,
+	Name,
+	City,
+	Street,
+	ApartmentNumber,
+	ImgThumb,
+	ImgList,
+	OwnerRatingSum/NULLIF(RatingsCount,0)::double precision AS OwnerRating,
+	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
+	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
+	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
+	Lat,
+	Long,
+	Description,
+	IDUser
+ FROM apartment;
+END; $$ 
+LANGUAGE 'plpgsql';
+
+
 CREATE OR REPLACE FUNCTION update_ratings()
 	RETURNS TRIGGER AS $add_ratings$
 DECLARE

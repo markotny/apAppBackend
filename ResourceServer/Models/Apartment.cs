@@ -11,7 +11,10 @@ namespace ResourceServer.Models
         public String ApartmentNumber { get; set; }
         public String ImgThumb { get; set; }
         public String[] ImgList { get; set; }
-        public decimal? Rate { get; set; }
+        public double OwnerRating { get; set; }
+        public double LocationRating { get; set; }
+        public double StandardRating { get; set; }
+        public double PriceRating { get; set; }
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
         public String Description { get; set; }

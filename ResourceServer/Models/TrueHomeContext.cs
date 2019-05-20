@@ -116,7 +116,7 @@ namespace ResourceServer.Models
         //Get Apartment by id
         public static Apartment getApartment(int id)
         {
-            query = $"SELECT * FROM Apartment WHERE id_ap = {id};";
+            query = $"SELECT * FROM get_apartment({id});";
 
             Apartment apartment = null;
 
@@ -132,7 +132,7 @@ namespace ResourceServer.Models
         //Get all Apartments
         public static IList<Apartment> getAllApartments()
         {
-            query = "SELECT * FROM Apartment;";
+            query = "SELECT * FROM get_all_apartments();";
 
             IList<Apartment> apartment = null;
 
@@ -147,7 +147,7 @@ namespace ResourceServer.Models
         //Get with limit and offset Apartments
         public static ApartmentJSON getApartments(int limit, int offset)
         {
-            query = $"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
+            query = $"SELECT * FROM get_all_apartments() ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Apartment> apartments = null;
             ApartmentJSON apJson = new ApartmentJSON();
@@ -183,7 +183,6 @@ namespace ResourceServer.Models
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +
-                    "Rate = @Rate," +
                     "Lat = @Lat," +
                     "Long = @Long," +
                     "IDUser = @IDUser," +
@@ -201,9 +200,9 @@ namespace ResourceServer.Models
         public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
+                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Lat,Long,IDUser)" +
                     " VALUES " +
-                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";
 
             int id;
