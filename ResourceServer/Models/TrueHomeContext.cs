@@ -226,6 +226,86 @@ namespace ResourceServer.Models
                 connection.Execute(query);
             }
         }
+
+        //Get with limit and offset Ratings
+        public static RatingJSON getRatings(int id, int limit, int offset)
+        {
+            query = $"SELECT * FROM rating WHERE IDAp = {id} ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
+
+            IList<Rating> ratings = null;
+            var ratJson = new RatingJSON();
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                ratings = connection.Query<Rating>(query).ToList();
+            }
+
+            if (ratings.Count <= limit)
+            {
+                ratJson.hasMore = false;
+                ratJson.ratingsList = ratings;
+            }
+            else
+            {
+                ratings.RemoveAt(limit);
+                ratJson.hasMore = true;
+                ratJson.ratingsList = ratings;
+            }
+
+            return ratJson;
+        }
+        //Create Rating
+        public static async Task<int> createRating(Rating rat)
+        {
+            query = @"INSERT INTO rating " +
+                    "(Owner,Location,Standard,Price,Description,IDUser,IDAp)" +
+                    " VALUES " +
+                    "(@Owner,@Location,@Standard,@Price,@Description,@IDUser,@IDAp)" +
+                    "RETURNING ID_Rating";
+
+            int id;
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                id = await connection.ExecuteScalarAsync<int>(query, rat);
+            }
+
+            return id;
+        }
+        //Update Rating
+        public static void updateRating(Rating rat)
+        {
+            query = @"UPDATE Rating SET " +
+                    "Owner = @Owner," +
+                    "Location = @Location," +
+                    "Standard = @Standard," +
+                    "Price = @Price," +
+                    "Description = @Description," +
+                    "IDUser = @IDUser," +
+                    "IDAp = @IDAp," +
+                    "WHERE ID_Rating = @ID_Rating;";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                connection.Execute(query, rat);
+            }
+        }
+
+        //Delete Rating
+        public static void deleteRating(int id)
+        {
+            query = "DELETE FROM rating" +
+                    $" WHERE id_Rating = {id};";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                connection.Execute(query);
+            }
+        }
+
         //Add picture reference
         public static void AddPictureRef(int id, string fileName)
         {
