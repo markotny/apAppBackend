@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,9 +27,11 @@ namespace ResourceServer
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IHostingEnvironment _env;
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
             AppSettingProvider.connString = Configuration.GetConnectionString("DefaultConnection");
             AppSettingProvider.migString = Configuration.GetConnectionString("MigrationConnection");
 
@@ -48,6 +51,17 @@ namespace ResourceServer
 
             services.AddSingleton<IContentTypeProvider>(new FileExtensionContentTypeProvider());
 
+            if (_env.IsDevelopment())
+            {
+                services.AddMvc(opts =>
+                {
+                    opts.Filters.Add(new AllowAnonymousFilter());
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            }
+            else
+            {
+                services.AddMvc();
+            }
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -72,12 +86,12 @@ namespace ResourceServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            app.UseRequestResponseLogging();
 
-            if (env.IsDevelopment())
+            if (_env.IsDevelopment())
             {
+                app.UseRequestResponseLogging();
                 app.UseDeveloperExceptionPage();
             }
             else
