@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ResourceServer.Models;
 using ResourceServer.Resources;
+using ResourceServer.JSONModels;
 
 namespace ResourceServer.Controllers
 {
@@ -29,10 +30,10 @@ namespace ResourceServer.Controllers
 
         // GET: api/Apartments
         [HttpPost]
-        public string Get(LimitOffset limit_offset)
+        public string Get(LimitOffset limitOffset)
         {
-            var limit = limit_offset.limit;
-            var offset = limit_offset.offset;
+            var limit = limitOffset.limit;
+            var offset = limitOffset.offset;
 
             var aps = TrueHomeContext.getApartments(limit, offset);
 
@@ -58,35 +59,37 @@ namespace ResourceServer.Controllers
             return JsonConvert.SerializeObject(ap, Formatting.Indented);
         }
 
-        // CREATE POST: api/Apartments
+        // CREATE POST: api/Apartments/add
         [HttpPost("add")]
         public async Task<JObject> Post(Apartment ap)
         {
             var userId = User.FindFirst("sub")?.Value;
             _logger.LogInformation("Adding new apartment owned by " + User.Identity.Name);
 
+            var phoneNum = TrueHomeContext.getPhoneNumber(userId);
+            if (phoneNum == null)
+                TrueHomeContext.setPhoneNumber(ap.PhoneNumber, userId);
+
             ap.IDUser = userId;
             var id = await TrueHomeContext.createApartment(ap);
             return JObject.Parse("{\"id\": " + id + ", \"UploadStatus\": " + 1 + "}");
         }
 
-        // UPDATE PUT: api/Apartments/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Apartment ap)
+        // UPDATE PUT: api/Apartments
+        [HttpPut]
+        public async Task<IActionResult> Put(Apartment ap)
         {
-            if (id == ap.ID_Ap)
-            {
-                TrueHomeContext.updateApartment(ap);
-            }
-            return NoContent();
+            TrueHomeContext.updateApartment(ap);
+            return Ok();
         }
 
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        // DELETE: api/Apartments
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromBody] IDJSON id)
         {
-            TrueHomeContext.deleteApartment(id);
-            return NoContent();
+            if (id.IntID == null) return BadRequest();
+            TrueHomeContext.deleteApartment(id.IntID);
+            return Ok();
         }
     }
 }

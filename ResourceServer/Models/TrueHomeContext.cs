@@ -4,10 +4,8 @@ using ResourceServer.JSONModels;
 using ResourceServer.Resources;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Models
 {
@@ -76,7 +74,36 @@ namespace ResourceServer.Models
             }
         }
 
-        public static PersonalData getPersonalDataByUserID([FromBody]string userID)
+        public static string getPhoneNumber(string userID)
+        {
+            query = "SELECT PhoneNumber FROM \"personaldata\" " +
+                    $"WHERE IDUser = '{userID}';";
+
+            string phonenum = null;
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                phonenum = connection.Query<string>(query).FirstOrDefault();
+            }
+
+            return phonenum;
+        }
+
+        public static void setPhoneNumber(string phoneNum, string userID)
+        {
+            query = "UPDATE \"personaldata\" " +
+                    $"PhoneNumber = '{phoneNum}' " +
+                    $"WHERE IDUser = '{userID}'";
+            
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                connection.Execute(query);
+            }
+        }
+
+        public static PersonalData getPersonalDataByUserID(string userID)
         {
             query = "SELECT * FROM PersonalData AS PD " +
                     "LEFT JOIN \"user\" AS U " +
@@ -96,11 +123,6 @@ namespace ResourceServer.Models
         //Add new user
         public static async Task addPersonalData(PersonalData personalData)
         {
-            if (personalData.BirthDate == null)
-            {
-                personalData.BirthDate = new DateTime(1337, 4, 20);
-            }
-
             query = "INSERT INTO PersonalData " +
                     "(FirstName, LastName, BirthDate, IDUser)" +
                     "VALUES " +
@@ -145,12 +167,12 @@ namespace ResourceServer.Models
         }
 
         //Get with limit and offset Apartments
-        public static ApartmentJSON getApartments(int limit, int offset)
+        public static ApartmentListJSON getApartments(int limit, int offset)
         {
             query = $"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Apartment> apartments = null;
-            ApartmentJSON apJson = new ApartmentJSON();
+            ApartmentListJSON apJson = new ApartmentListJSON();
 
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {
@@ -215,8 +237,9 @@ namespace ResourceServer.Models
             return id;
         }
         //Delete Apartment
-        public static void deleteApartment(int id)
+        public static bool deleteApartment(int? id)
         {
+            bool isSuccess = false;
             query = "DELETE FROM Apartment" +
                     $" WHERE id_ap = {id};";
 
@@ -224,7 +247,9 @@ namespace ResourceServer.Models
             {
                 connection.Open();
                 connection.Execute(query);
+                isSuccess = true;
             }
+            return isSuccess;
         }
         //Add picture reference
         public static void AddPictureRef(int id, string fileName)

@@ -9,16 +9,17 @@ namespace ResourceServer.Models
     public class Apartment
     {
         public int ID_Ap { get; set; }
-        public String Name { get; set; }
-        public String City { get; set; }
-        public String Street { get; set; }
-        public String ApartmentNumber { get; set; }
-        public String ImgThumb { get; set; }
-        public String[] ImgList { get; set; }
+        public string Name { get; set; }
+        public string City { get; set; }
+        public string Street { get; set; }
+        public string ApartmentNumber { get; set; }
+        public string ImgThumb { get; set; }
+        public string[] ImgList { get; set; }
         public decimal? Rate { get; set; }
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
-        public String Description { get; set; }
+        public string Description { get; set; }
+        public string PhoneNumber { get; set; }
         public string IDUser { get; set; }        
     }
 }
