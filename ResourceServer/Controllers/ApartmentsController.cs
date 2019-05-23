@@ -41,6 +41,7 @@ namespace ResourceServer.Controllers
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
                 ).ToArray();
             }
+            
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
