@@ -180,7 +180,6 @@ namespace ResourceServer.Models
                     "Name = @Name," +
                     "City = @City," +
                     "Street = @Street," +
-                    "Address = @Address," +
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +

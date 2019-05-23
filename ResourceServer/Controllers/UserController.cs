@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -49,14 +51,20 @@ namespace ResourceServer.Controllers
         /**
          * gets details of user
          * **/
-        [HttpPost]
-        [Route ("details")]
-        public string Details([FromBody] UserIDJSON userIDJSON)
+        [HttpGet("details")]
+        public string Details()
         {
-            UserDetailsJSON userDetails = new UserDetailsJSON();
-            userDetails.personalData = TrueHomeContext.getPersonalDataByUserID(userIDJSON.userID);
-            userDetails.user = TrueHomeContext.getUser(userIDJSON.userID);
-            userDetails.apartmentList = TrueHomeContext.getUserApartmentList(userIDJSON.userID);
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return "Missing user with this id";
+
+            var userDetails = new UserDetailsJSON
+            {
+                personalData = TrueHomeContext.getPersonalDataByUserID(userId),
+                user = TrueHomeContext.getUser(userId),
+                apartmentList = TrueHomeContext.getUserApartmentList(userId)
+            };
+
             if (userDetails.personalData != null && userDetails.user != null)
             {
                 return JsonConvert.SerializeObject(userDetails, Formatting.Indented);

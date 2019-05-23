@@ -47,12 +47,12 @@ namespace ResourceServer.Controllers
         }
 
         [HttpPost("{idAp}")]
-        public async Task<IActionResult> UploadImg(int idAp, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadImg(int idAp, [FromForm] IFormFile image)
         {
-            if (file.Length > 0 && file.ContentType.Contains("image"))
+            if (image.Length > 0 && image.ContentType.Contains("image"))
             {
                 var dirPath = $"/data/pictures/{idAp}";
-                var filePath = dirPath + $"/{file.FileName}";
+                var filePath = dirPath + $"/{image.FileName}";
 
                 if (System.IO.File.Exists(filePath))
                 {
@@ -65,10 +65,10 @@ namespace ResourceServer.Controllers
                     var dir = Directory.CreateDirectory(dirPath);
                     using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
                     {
-                        await file.CopyToAsync(fileStream);
+                        await image.CopyToAsync(fileStream);
                     }
 
-                    TrueHomeContext.AddPictureRef(idAp, file.FileName);
+                    TrueHomeContext.AddPictureRef(idAp, image.FileName);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
                     return Ok();

@@ -25,7 +25,7 @@ CREATE TABLE "apartment" (
 	City            varchar (100) NOT NULL,
 	Street          varchar (100) NOT NULL,
 	ApartmentNumber varchar (20)  NOT NULL,
-	ImgThumb        varchar (200) NOT NULL,
+	ImgThumb        varchar (200),
 	ImgList         varchar (200)[],
 	Rate            numeric (2,1),
 	Lat             numeric (9,7) NOT NULL,
