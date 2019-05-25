@@ -15,10 +15,10 @@ namespace ResourceServer.Models
         public double LocationRating { get; set; }
         public double StandardRating { get; set; }
         public double PriceRating { get; set; }
+        public string PhoneNumber { get; set; }
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
         public string Description { get; set; }
-        public string PhoneNumber { get; set; }
         public string IDUser { get; set; }        
     }
 }
