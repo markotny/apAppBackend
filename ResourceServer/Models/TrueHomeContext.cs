@@ -92,9 +92,9 @@ namespace ResourceServer.Models
 
         public static void setPhoneNumber(string phoneNum, string userID)
         {
-            query = "UPDATE \"personaldata\" " +
+            query = "UPDATE PersonalData SET " +
                     $"PhoneNumber = '{phoneNum}' " +
-                    $"WHERE IDUser = '{userID}'";
+                    $"WHERE IDUser = '{userID}';";
             
             using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
             {

@@ -81,6 +81,7 @@ CREATE TYPE apartment_avg AS (
 	LocationRating  	double precision,
 	StandardRating  	double precision,
 	PriceRating     	double precision,
+	PhoneNumber			varchar(20),
 	Lat             	numeric (9,7),
 	Long            	numeric (10,7),
 	Description 		text,
@@ -105,12 +106,13 @@ BEGIN
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
+	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,
 	IDUser
  INTO result_record
- FROM apartment
+ FROM apartment ap
  WHERE ID_Ap=id;
  
  RETURN result_record;
@@ -133,11 +135,12 @@ BEGIN
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
+	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,
 	IDUser
- FROM apartment;
+ FROM apartment ap;
 END; $$ 
 LANGUAGE 'plpgsql';
 

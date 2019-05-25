@@ -43,5 +43,5 @@ services:
       - "5433:5432"
     restart: always
     volumes:
-      - ./postgresDB_scripts:/docker-entrypoint-initdb.d
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ~/source/repos/apappPictures:/data/pictures
