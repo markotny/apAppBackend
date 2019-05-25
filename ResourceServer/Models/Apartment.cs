@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ResourceServer.Models
 {
@@ -15,7 +11,10 @@ namespace ResourceServer.Models
         public string ApartmentNumber { get; set; }
         public string ImgThumb { get; set; }
         public string[] ImgList { get; set; }
-        public decimal? Rate { get; set; }
+        public double OwnerRating { get; set; }
+        public double LocationRating { get; set; }
+        public double StandardRating { get; set; }
+        public double PriceRating { get; set; }
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
         public string Description { get; set; }

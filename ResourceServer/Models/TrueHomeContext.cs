@@ -139,7 +139,7 @@ namespace ResourceServer.Models
         //Get Apartment by id
         public static Apartment getApartment(int id)
         {
-            query = $"SELECT * FROM Apartment WHERE id_ap = {id};";
+            query = $"SELECT * FROM get_apartment({id});";
 
             Apartment apartment = null;
 
@@ -151,10 +151,11 @@ namespace ResourceServer.Models
 
             return apartment;
         }
+        
         //Get all Apartments
         public static IList<Apartment> getAllApartments()
         {
-            query = "SELECT * FROM Apartment;";
+            query = "SELECT * FROM get_all_apartments();";
 
             IList<Apartment> apartment = null;
 
@@ -169,7 +170,7 @@ namespace ResourceServer.Models
         //Get with limit and offset Apartments
         public static ApartmentListJSON getApartments(int limit, int offset)
         {
-            query = $"SELECT * FROM Apartment ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
+            query = $"SELECT * FROM get_all_apartments() ORDER BY ID_Ap ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Apartment> apartments = null;
             ApartmentListJSON apJson = new ApartmentListJSON();
@@ -205,7 +206,6 @@ namespace ResourceServer.Models
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +
-                    "Rate = @Rate," +
                     "Lat = @Lat," +
                     "Long = @Long," +
                     "IDUser = @IDUser," +
@@ -218,13 +218,14 @@ namespace ResourceServer.Models
                 connection.Execute(query, ap);
             }
         }
+
         //Create Apartment
         public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Rate,Lat,Long,IDUser)" +
+                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Lat,Long,IDUser)" +
                     " VALUES " +
-                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Rate,@Lat,@Long,@IDUser)" +
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";
 
             int id;
@@ -251,13 +252,100 @@ namespace ResourceServer.Models
             }
             return isSuccess;
         }
+
+        //Get with limit and offset Ratings
+        public static RatingJSON getRatings(int id, int limit, int offset)
+        {
+            query = $"SELECT * FROM rating WHERE IDAp = {id} ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
+
+            IList<Rating> ratings = null;
+            var ratJson = new RatingJSON();
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                ratings = connection.Query<Rating>(query).ToList();
+            }
+
+            if (ratings.Count <= limit)
+            {
+                ratJson.hasMore = false;
+                ratJson.ratingsList = ratings;
+            }
+            else
+            {
+                ratings.RemoveAt(limit);
+                ratJson.hasMore = true;
+                ratJson.ratingsList = ratings;
+            }
+
+            return ratJson;
+        }
+        //Create Rating
+        public static async Task<int> createRating(Rating rat)
+        {
+            query = @"INSERT INTO rating " +
+                    "(Owner,Location,Standard,Price,Description,IDUser,IDAp)" +
+                    " VALUES " +
+                    "(@Owner,@Location,@Standard,@Price,@Description,@IDUser,@IDAp)" +
+                    "RETURNING ID_Rating";
+
+            int id;
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                id = await connection.ExecuteScalarAsync<int>(query, rat);
+            }
+
+            return id;
+        }
+        //Update Rating
+        public static void updateRating(Rating rat)
+        {
+            query = @"UPDATE Rating SET " +
+                    "Owner = @Owner," +
+                    "Location = @Location," +
+                    "Standard = @Standard," +
+                    "Price = @Price," +
+                    "Description = @Description," +
+                    "IDUser = @IDUser," +
+                    "IDAp = @IDAp," +
+                    "WHERE ID_Rating = @ID_Rating;";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                connection.Execute(query, rat);
+            }
+        }
+
+        //Delete Rating
+        public static void deleteRating(int id)
+        {
+            query = "DELETE FROM rating" +
+                    $" WHERE id_Rating = {id};";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                connection.Execute(query);
+            }
+        }
+
         //Add picture reference
         public static void AddPictureRef(int id, string fileName)
         {
             var apartment = getApartment(id);
-            apartment.ImgList = apartment.ImgList
-                                    ?.Concat(new[] { fileName }).ToArray()
-                                    ?? new[] { fileName };
+
+            if (apartment.ImgList == null)
+            {
+                apartment.ImgList = new[] {fileName};
+                apartment.ImgThumb = fileName;
+            }
+            else
+                apartment.ImgList = apartment.ImgList
+                    ?.Concat(new[] {fileName}).ToArray();
+
             updateApartment(apartment);
 
             //TODO: make this work instead of loading whole apartment object

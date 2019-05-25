@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using ResourceServer.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace ResourceServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class PicturesController : ControllerBase
     {
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -47,12 +49,29 @@ namespace ResourceServer.Controllers
         }
 
         [HttpPost("{idAp}")]
-        public async Task<IActionResult> UploadImg(int idAp, [FromForm] IFormFile image)
+        public async Task<IActionResult> UploadImg(int idAp)
         {
+            IFormFile image;
+            try
+            {
+                if (HttpContext.Request.Form.Files[0] != null)
+                {
+                    image = HttpContext.Request.Form.Files[0];
+                }
+                else
+                    throw new ArgumentNullException( "image","Could not bind uploaded image or no image sent");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.ToString());
+                return BadRequest(e.ToString());
+            }
+
             if (image.Length > 0 && image.ContentType.Contains("image"))
             {
                 var dirPath = $"/data/pictures/{idAp}";
-                var filePath = dirPath + $"/{image.FileName}";
+                var filePath = $"{dirPath}/{image.FileName}";
+                string thumbName = null;
 
                 if (System.IO.File.Exists(filePath))
                 {
@@ -62,21 +81,70 @@ namespace ResourceServer.Controllers
 
                 try
                 {
-                    var dir = Directory.CreateDirectory(dirPath);
+                    var ap = TrueHomeContext.getApartment(idAp);
+
+                    if (string.IsNullOrEmpty(ap.ImgThumb))
+                    {
+                        _logger.LogInformation($"Received first picture for apartment {idAp}, creating thumbnail copy");
+                        Directory.CreateDirectory(dirPath);
+
+                        thumbName = Path.GetFileNameWithoutExtension(image.FileName) +
+                                    "_thumb" +
+                                    Path.GetExtension(image.FileName);
+
+                        using (var inputStream = image.OpenReadStream())
+                        using (var imgThumb = Image.Load(inputStream))
+                        {
+                            imgThumb.Mutate(x => x
+                                .Resize(0, 300));
+
+                            imgThumb.Save($"{dirPath}/{thumbName}");
+                        }
+
+                        ap.ImgThumb = thumbName;
+                    }
+
                     using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
                     {
                         await image.CopyToAsync(fileStream);
                     }
 
-                    TrueHomeContext.AddPictureRef(idAp, image.FileName);
+                    ap.ImgList = ap.ImgList
+                                     ?.Concat(new[] {image.FileName}).ToArray()
+                                 ?? new[] {image.FileName};
+
+                    TrueHomeContext.updateApartment(ap);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
                     return Ok();
                 }
+                catch (Npgsql.PostgresException e)
+                {
+                    _logger.LogError(e, "Database error while saving picture. Deleting any saved pictures");
+
+                    if (thumbName != null && System.IO.File.Exists($"{dirPath}/{thumbName}"))
+                    {
+                        System.IO.File.Delete($"{dirPath}/{thumbName}");
+                        _logger.LogInformation($"Deleted thumbnail file {dirPath}/{thumbName}");
+                    }
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                        _logger.LogInformation($"Deleted file {filePath}");
+                    }
+                    return BadRequest(e);
+
+                }
+                catch (IOException e)
+                {
+                    _logger.LogError(e,"IO exception while saving file! Database not updated");
+                    return BadRequest(e);
+                }
                 catch (Exception e)
                 {
                     _logger.LogError("Error while saving file: " + e);
-                    return BadRequest();
+                    return BadRequest(e);
                 }
             }
 
