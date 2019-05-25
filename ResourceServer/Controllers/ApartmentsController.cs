@@ -29,6 +29,7 @@ namespace ResourceServer.Controllers
 
         // GET: api/Apartments
         [HttpPost]
+        [AllowAnonymous]
         public string Get(LimitOffset limit_offset)
         {
             var limit = limit_offset.limit;
@@ -41,12 +42,16 @@ namespace ResourceServer.Controllers
                 ap.ImgList = ap.ImgList?.Select(fileName =>
                     $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{fileName}"
                 ).ToArray();
+
+                if (!string.IsNullOrEmpty(ap.ImgThumb))
+                    ap.ImgThumb = $"{_configuration["ResourceSrvUrl"]}/api/Pictures/{ap.ID_Ap}/{ap.ImgThumb}";
             }
             return JsonConvert.SerializeObject(aps, Formatting.Indented);
         }
 
         // GET: api/Apartments/5
         [HttpGet("{id}", Name = "GetApartment")]
+        [AllowAnonymous]
         public string Get(int id)
         {
             var ap = TrueHomeContext.getApartment(id);

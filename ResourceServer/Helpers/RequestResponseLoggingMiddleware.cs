@@ -22,8 +22,8 @@ namespace ResourceServer.Helpers
         }
     
         public async Task Invoke(HttpContext context)
-        {  
-            _logger.LogTrace(await FormatRequest(context.Request));
+        {
+            _logger.LogDebug(await FormatRequest(context.Request));
 
             var originalBodyStream = context.Response.Body;
 
@@ -33,7 +33,7 @@ namespace ResourceServer.Helpers
 
                 await _next(context);
 
-                _logger.LogTrace(await FormatResponse(context.Response));
+                _logger.LogDebug(await FormatResponse(context.Response));
                 await responseBody.CopyToAsync(originalBodyStream);
             }
         }
@@ -43,7 +43,9 @@ namespace ResourceServer.Helpers
             request.EnableRewind();
             var body = request.Body;
 
-            var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+            var buffer = new byte[request.ContentLength < 1000 ?
+                Convert.ToInt32(request.ContentLength) : 1000];
+
             await request.Body.ReadAsync(buffer, 0, buffer.Length);
             var bodyAsText = Encoding.UTF8.GetString(buffer);
             body.Seek(0, SeekOrigin.Begin);
@@ -55,7 +57,16 @@ namespace ResourceServer.Helpers
         private async Task<string> FormatResponse(HttpResponse response)
         {
             response.Body.Seek(0, SeekOrigin.Begin);
-            var text = await new StreamReader(response.Body).ReadToEndAsync(); 
+            string text;
+            if (response.ContentLength < 1000)
+                text = await new StreamReader(response.Body).ReadToEndAsync();
+            else
+            {
+                var buffer = new char[1000];
+                await new StreamReader(response.Body).ReadAsync(buffer, 0, buffer.Length);
+                text = new string(buffer);
+            }
+
             response.Body.Seek(0, SeekOrigin.Begin);
 
             return $"Response {text}";
