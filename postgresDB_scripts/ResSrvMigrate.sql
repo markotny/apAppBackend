@@ -59,6 +59,7 @@ CREATE TABLE "personaldata" (
 	FirstName	varchar(50) NOT NULL,
 	LastName	varchar(100) NOT NULL,
 	BirthDate	Date,
+	PhoneNumber varchar(20),
 	IDUser		text NOT NULL,
 	CONSTRAINT pk_personaldata PRIMARY KEY(ID_PData),
 	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT

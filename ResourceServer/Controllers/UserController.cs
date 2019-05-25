@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ResourceServer.Models;
 using ResourceServer.JSONModels;
 
@@ -28,23 +24,20 @@ namespace ResourceServer.Controllers
             _configuration = configuration;
             _logger = logger;
         }
-        // Post: api/User
-        /**
-         * gets information about user
-         * **/
-        [HttpPost]
-        public string Get(string username)
+
+        [HttpGet("phoneNumber")]
+        public JObject getPhoneNumber()
         {
-            if(username == null)
-            {
-                return "Missing username in body";
-            }
-            User user = TrueHomeContext.getUserByLogin(username);
-            if(user != null)
-            {
-                return JsonConvert.SerializeObject(user, Formatting.Indented);
-            }
-            return "Missing user with this name";
+            var userId = User.FindFirst("sub")?.Value;
+
+            string phoneNumber = TrueHomeContext.getPhoneNumber(userId);
+            string jsonData = null;
+            if (phoneNumber == null)
+                jsonData = "{ 'phoneNumber': null }";
+            else
+                jsonData = "{'phoneNumber': " + $"'{phoneNumber}'" + "'}";
+            
+            return JObject.Parse(jsonData);
         }
 
         // POST: api/User/details
@@ -52,8 +45,7 @@ namespace ResourceServer.Controllers
          * gets details of user
          * **/
         [HttpGet("details")]
-        public string Details()
-        {
+        public string Details(){
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId))
                 return "Missing user with this id";
@@ -70,25 +62,6 @@ namespace ResourceServer.Controllers
                 return JsonConvert.SerializeObject(userDetails, Formatting.Indented);
             }
             return "Missing user with this id";
-        }
-
-        // GET: api/User/5
-        [HttpGet("{id}", Name = "GetUser")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // PUT: api/User/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ResourceServer.JSONModels
 {
-    public class ApartmentJSON
+    public class ApartmentListJSON
     {
         public IList<Apartment> apartmentsList { get; set; }
         public bool hasMore { get; set; }
