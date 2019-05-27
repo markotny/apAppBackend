@@ -65,6 +65,16 @@ CREATE TABLE "personaldata" (
 	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT
 );
 
+CREATE TABLE "phonerequest" (
+	ID_PhoneRequest		SERIAL,
+	RequestDate			Date,
+	NotificationSent	boolean DEFAULT false,
+	IDUser				text NOT NULL,
+	IDAp				INTEGER NOT NULL,
+	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT,
+	CONSTRAINT fk_apartment FOREIGN KEY(IDAp) REFERENCES "apartment"(ID_Ap) ON DELETE RESTRICT
+);
+
 CREATE TABLE "dump" (
 	ID_PData	SERIAL
 );
@@ -81,7 +91,6 @@ CREATE TYPE apartment_avg AS (
 	LocationRating  	double precision,
 	StandardRating  	double precision,
 	PriceRating     	double precision,
-	PhoneNumber			varchar(20),
 	Lat             	numeric (9,7),
 	Long            	numeric (10,7),
 	Description 		text,
@@ -106,7 +115,6 @@ BEGIN
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
-	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,
@@ -135,7 +143,6 @@ BEGIN
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
-	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,

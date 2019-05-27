@@ -33,9 +33,9 @@ namespace ResourceServer.Controllers
             string phoneNumber = TrueHomeContext.getPhoneNumber(userId);
             string jsonData = null;
             if (phoneNumber == null)
-                jsonData = "{ 'phoneNumber': null }";
+                jsonData = "{ \"phoneNumber\": null }";
             else
-                jsonData = "{'phoneNumber': " + $"'{phoneNumber}'" + "'}";
+                jsonData = "{ \"phoneNumber\": " + phoneNumber + "}";
             
             return JObject.Parse(jsonData);
         }

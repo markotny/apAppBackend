@@ -95,5 +95,23 @@ namespace ResourceServer.Controllers
             TrueHomeContext.deleteApartment(id.IntID);
             return Ok();
         }
+
+
+        [HttpGet("phoneNumber")]
+        public async Task<JObject> GetOwnerPhoneNumber(int id)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+
+            var phoneNumber = TrueHomeContext.getOwnerPhoneNumber(id);
+            await TrueHomeContext.addPhoneRequest(userId, id);
+
+            string jsonData;
+            if (phoneNumber == null)
+                jsonData = "{ \"phoneNumber\": null }";
+            else
+                jsonData = "{ \"phoneNumber\": " + phoneNumber + "}";
+
+            return JObject.Parse(jsonData);
+        }
     }
 }

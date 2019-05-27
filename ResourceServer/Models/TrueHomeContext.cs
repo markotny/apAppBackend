@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ResourceServer.Models
 {
@@ -73,6 +74,38 @@ namespace ResourceServer.Models
                 await connection.ExecuteAsync(query);
             }
         }
+
+        public static async Task addPhoneRequest(string idUser, int idAp)
+        {
+            query = "INSERT INTO phoneRequest " +
+                    "(RequestDate, IDUser, IDAp)" +
+                    "VALUES " +
+                    $"('{DateTime.Now}','{idUser}',{idAp});";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                await connection.ExecuteAsync(query);
+            }
+        }
+
+        public static string getOwnerPhoneNumber(int idAp)
+        {
+            var ap = getApartment(idAp);
+            query = "SELECT PhoneNumber FROM PersonalData " +
+                    $"WHERE IDUser = '{ap.IDUser}';";
+
+            string phonenum;
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                phonenum = connection.Query<string>(query).FirstOrDefault();
+            }
+
+            return phonenum;
+        }
+
 
         public static string getPhoneNumber(string userID)
         {
