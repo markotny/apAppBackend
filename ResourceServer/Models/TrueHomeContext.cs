@@ -239,6 +239,9 @@ namespace ResourceServer.Models
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +
+	                "Price = @Price," +
+	                "MaxPeople = @MaxPeople," +
+	                "Area = @Area," +
                     "Lat = @Lat," +
                     "Long = @Long," +
                     "IDUser = @IDUser," +

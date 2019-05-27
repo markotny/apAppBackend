@@ -11,6 +11,9 @@ namespace ResourceServer.Models
         public string ApartmentNumber { get; set; }
         public string ImgThumb { get; set; }
         public string[] ImgList { get; set; }
+        public int Price { get; set; }
+        public int MaxPeople { get; set; }
+        public int Area { get; set; }
         public double OwnerRating { get; set; }
         public double LocationRating { get; set; }
         public double StandardRating { get; set; }
