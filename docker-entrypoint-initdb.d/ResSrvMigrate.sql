@@ -163,6 +163,60 @@ BEGIN
 END; $$ 
 LANGUAGE 'plpgsql';
 
+CREATE TYPE rating_login AS (
+	ID_Rating		INTEGER,
+	Owner			numeric (1),
+	Location		numeric (1),
+	Standard		numeric (1),
+	Price			numeric (1),
+	Description		text,
+	Login			varchar (100),
+	IDUser			text,
+	IDAp			INTEGER
+);
+
+CREATE OR REPLACE FUNCTION get_rating(id integer) 
+ RETURNS rating_login
+AS $$
+DECLARE
+	result_record rating_login;
+BEGIN
+ SELECT 
+	ID_Rating,
+	Owner,	
+	Location,
+	Standard,
+	Price,
+	Description,
+	(SELECT Login FROM public.user WHERE ID_User = IDUser),
+	IDUser,
+	IDAp
+ INTO result_record
+ FROM rating
+ WHERE ID_Rating=id;
+ 
+ RETURN result_record;
+END; $$ 
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION get_all_ratings(id integer)
+ RETURNS SETOF rating_login
+AS $$
+BEGIN
+ RETURN QUERY SELECT 
+	ID_Rating,
+	Owner,	
+	Location,
+	Standard,
+	Price,
+	Description,
+	(SELECT Login FROM public.user WHERE ID_User = IDUser),
+	IDUser,
+	IDAp
+ FROM rating
+ WHERE IDAp=id;
+END; $$ 
+LANGUAGE 'plpgsql';
 
 CREATE OR REPLACE FUNCTION update_ratings()
 	RETURNS TRIGGER AS $add_ratings$

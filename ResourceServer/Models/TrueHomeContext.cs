@@ -292,7 +292,7 @@ namespace ResourceServer.Models
         //Get with limit and offset Ratings
         public static RatingJSON getRatings(int id, int limit, int offset)
         {
-            query = $"SELECT * FROM rating WHERE IDAp = {id} ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
+            query = $"SELECT * FROM get_all_ratings({id}) ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Rating> ratings = null;
             var ratJson = new RatingJSON();
