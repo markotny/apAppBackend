@@ -259,9 +259,9 @@ namespace ResourceServer.Models
         public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Lat,Long,IDUser)" +
+                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Price,MaxPeople,Area,Lat,Long,IDUser)" +
                     " VALUES " +
-                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Lat,@Long,@IDUser)" +
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Price,@MaxPeople,@Area,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";
 
             int id;

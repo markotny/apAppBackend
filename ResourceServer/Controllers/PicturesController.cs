@@ -49,7 +49,7 @@ namespace ResourceServer.Controllers
         }
 
         [HttpPost("{idAp}")]
-        public async Task<IActionResult> UploadImg(int idAp)
+        public async Task<IActionResult> UploadImg(int idAp, bool isThumb = false)
         {
             IFormFile image;
             try
@@ -73,46 +73,55 @@ namespace ResourceServer.Controllers
                 var filePath = $"{dirPath}/{image.FileName}";
                 string thumbName = null;
 
-                if (System.IO.File.Exists(filePath))
-                {
-                    _logger.LogWarning($"File {filePath} already exists, aborting.");
-                    return Ok();
-                }
-
                 try
                 {
+                    Directory.CreateDirectory(dirPath);
                     var ap = TrueHomeContext.getApartment(idAp);
 
-                    if (string.IsNullOrEmpty(ap.ImgThumb))
+                    if (isThumb)
                     {
-                        _logger.LogInformation($"Received first picture for apartment {idAp}, creating thumbnail copy");
-                        Directory.CreateDirectory(dirPath);
+                        _logger.LogInformation($"Received thumbnail picture for idAp {idAp}, creating thumbnail copy");
 
                         thumbName = Path.GetFileNameWithoutExtension(image.FileName) +
                                     "_thumb" +
                                     Path.GetExtension(image.FileName);
 
-                        using (var inputStream = image.OpenReadStream())
-                        using (var imgThumb = Image.Load(inputStream))
+                        if (!System.IO.File.Exists($"{dirPath}/{thumbName}"))
                         {
-                            imgThumb.Mutate(x => x
-                                .Resize(0, 300));
+                            using (var inputStream = image.OpenReadStream())
+                            using (var imgThumb = Image.Load(inputStream))
+                            {
+                                imgThumb.Mutate(x => x
+                                    .Resize(0, 300));
 
-                            imgThumb.Save($"{dirPath}/{thumbName}");
+                                imgThumb.Save($"{dirPath}/{thumbName}");
+                            }
                         }
-
                         ap.ImgThumb = thumbName;
                     }
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
+                    
+                    if (!System.IO.File.Exists(filePath))
                     {
-                        await image.CopyToAsync(fileStream);
+                        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
+                        {
+                            await image.CopyToAsync(fileStream);
+                        }
+                        ap.ImgList = ap.ImgList
+                            ?.Concat(new[] { image.FileName }).ToArray()
+                            ?? new[] { image.FileName };
                     }
+                    else
+                    {
+                        _logger.LogWarning($"File {filePath} already exists, checking if it's on ap.ImgList");
+                        if (ap.ImgList == null || !ap.ImgList.Contains(image.FileName))
+                        {
+                            ap.ImgList = ap.ImgList
+                                ?.Concat(new[] { image.FileName }).ToArray()
+                                ?? new[] { image.FileName };
 
-                    ap.ImgList = ap.ImgList
-                                     ?.Concat(new[] {image.FileName}).ToArray()
-                                 ?? new[] {image.FileName};
-
+                            _logger.LogWarning($"File {filePath} wasn't on the ImgList! (added)");
+                        }
+                    }
                     TrueHomeContext.updateApartment(ap);
 
                     _logger.LogInformation("Uploaded new picture to apartment " + idAp);
