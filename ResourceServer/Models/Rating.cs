@@ -13,6 +13,7 @@ namespace ResourceServer.Models
         public int Standard { get; set; }
         public int Price { get; set; }
         public string Description { get; set; }
+        public string Login { get; set; }
         public string IDUser { get; set; }
         public int IDAp { get; set; }
     }

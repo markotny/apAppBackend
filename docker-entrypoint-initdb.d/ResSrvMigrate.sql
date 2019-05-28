@@ -27,6 +27,9 @@ CREATE TABLE "apartment" (
 	ApartmentNumber 	varchar (20)  NOT NULL,
 	ImgThumb        	varchar (200),
 	ImgList         	varchar (200)[],
+	Price				integer,
+	MaxPeople			integer,
+	Area				integer,
 	OwnerRatingSum  	INTEGER DEFAULT 0,
 	LocationRatingSum  	INTEGER DEFAULT 0,
 	StandardRatingSum  	INTEGER DEFAULT 0,
@@ -65,6 +68,16 @@ CREATE TABLE "personaldata" (
 	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT
 );
 
+CREATE TABLE "phonerequest" (
+	ID_PhoneRequest		SERIAL,
+	RequestDate			Date,
+	NotificationSent	boolean DEFAULT false,
+	IDUser				text NOT NULL,
+	IDAp				INTEGER NOT NULL,
+	CONSTRAINT fk_user FOREIGN KEY(IDUser) REFERENCES "user"(ID_User) ON DELETE RESTRICT,
+	CONSTRAINT fk_apartment FOREIGN KEY(IDAp) REFERENCES "apartment"(ID_Ap) ON DELETE RESTRICT
+);
+
 CREATE TABLE "dump" (
 	ID_PData	SERIAL
 );
@@ -77,11 +90,13 @@ CREATE TYPE apartment_avg AS (
 	ApartmentNumber 	varchar (20),
 	ImgThumb        	varchar (200),
 	ImgList         	varchar (200)[],
+	Price				integer,
+	MaxPeople			integer,
+	Area				integer,
 	OwnerRating  		double precision,
 	LocationRating  	double precision,
 	StandardRating  	double precision,
 	PriceRating     	double precision,
-	PhoneNumber			varchar(20),
 	Lat             	numeric (9,7),
 	Long            	numeric (10,7),
 	Description 		text,
@@ -102,11 +117,13 @@ BEGIN
 	ApartmentNumber,
 	ImgThumb,
 	ImgList,
+	Price,
+	MaxPeople,
+	Area,
 	OwnerRatingSum/NULLIF(RatingsCount,0)::double precision AS OwnerRating,
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
-	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,
@@ -131,11 +148,13 @@ BEGIN
 	ApartmentNumber,
 	ImgThumb,
 	ImgList,
+	Price,
+	MaxPeople,
+	Area,
 	OwnerRatingSum/NULLIF(RatingsCount,0)::double precision AS OwnerRating,
 	LocationRatingSum/NULLIF(RatingsCount,0)::double precision AS LocationRating,
 	StandardRatingSum/NULLIF(RatingsCount,0)::double precision AS StandardRating,
 	PriceRatingSum/NULLIF(RatingsCount,0)::double precision AS PriceRating,
-	(SELECT PhoneNumber FROM PersonalData pd WHERE pd.IDUser = ap.IDUser),
 	Lat,
 	Long,
 	Description,
@@ -144,6 +163,60 @@ BEGIN
 END; $$ 
 LANGUAGE 'plpgsql';
 
+CREATE TYPE rating_login AS (
+	ID_Rating		INTEGER,
+	Owner			numeric (1),
+	Location		numeric (1),
+	Standard		numeric (1),
+	Price			numeric (1),
+	Description		text,
+	Login			varchar (100),
+	IDUser			text,
+	IDAp			INTEGER
+);
+
+CREATE OR REPLACE FUNCTION get_rating(id integer) 
+ RETURNS rating_login
+AS $$
+DECLARE
+	result_record rating_login;
+BEGIN
+ SELECT 
+	ID_Rating,
+	Owner,	
+	Location,
+	Standard,
+	Price,
+	Description,
+	(SELECT Login FROM public.user WHERE ID_User = IDUser),
+	IDUser,
+	IDAp
+ INTO result_record
+ FROM rating
+ WHERE ID_Rating=id;
+ 
+ RETURN result_record;
+END; $$ 
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION get_all_ratings(id integer)
+ RETURNS SETOF rating_login
+AS $$
+BEGIN
+ RETURN QUERY SELECT 
+	ID_Rating,
+	Owner,	
+	Location,
+	Standard,
+	Price,
+	Description,
+	(SELECT Login FROM public.user WHERE ID_User = IDUser),
+	IDUser,
+	IDAp
+ FROM rating
+ WHERE IDAp=id;
+END; $$ 
+LANGUAGE 'plpgsql';
 
 CREATE OR REPLACE FUNCTION update_ratings()
 	RETURNS TRIGGER AS $add_ratings$

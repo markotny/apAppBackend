@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ResourceServer.Models
 {
@@ -73,6 +74,38 @@ namespace ResourceServer.Models
                 await connection.ExecuteAsync(query);
             }
         }
+
+        public static async Task addPhoneRequest(string idUser, int idAp)
+        {
+            query = "INSERT INTO phoneRequest " +
+                    "(RequestDate, IDUser, IDAp)" +
+                    "VALUES " +
+                    $"('{DateTime.Now}','{idUser}',{idAp});";
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                await connection.ExecuteAsync(query);
+            }
+        }
+
+        public static string getOwnerPhoneNumber(int idAp)
+        {
+            var ap = getApartment(idAp);
+            query = "SELECT PhoneNumber FROM PersonalData " +
+                    $"WHERE IDUser = '{ap.IDUser}';";
+
+            string phonenum;
+
+            using (var connection = new NpgsqlConnection(AppSettingProvider.connString))
+            {
+                connection.Open();
+                phonenum = connection.Query<string>(query).FirstOrDefault();
+            }
+
+            return phonenum;
+        }
+
 
         public static string getPhoneNumber(string userID)
         {
@@ -206,6 +239,9 @@ namespace ResourceServer.Models
                     "ApartmentNumber = @ApartmentNumber," +
                     "ImgThumb = @ImgThumb," +
                     "ImgList = @ImgList," +
+	                "Price = @Price," +
+	                "MaxPeople = @MaxPeople," +
+	                "Area = @Area," +
                     "Lat = @Lat," +
                     "Long = @Long," +
                     "IDUser = @IDUser," +
@@ -223,9 +259,9 @@ namespace ResourceServer.Models
         public static async Task<int> createApartment(Apartment ap)
         {
             query = @"INSERT INTO Apartment " +
-                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Lat,Long,IDUser)" +
+                    "(Name,City,Street,ApartmentNumber,ImgThumb,ImgList,Price,MaxPeople,Area,Lat,Long,IDUser)" +
                     " VALUES " +
-                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Lat,@Long,@IDUser)" +
+                    "(@Name,@City,@Street,@ApartmentNumber,@ImgThumb,@ImgList,@Price,@MaxPeople,@Area,@Lat,@Long,@IDUser)" +
                     "RETURNING ID_Ap";
 
             int id;
@@ -256,7 +292,7 @@ namespace ResourceServer.Models
         //Get with limit and offset Ratings
         public static RatingJSON getRatings(int id, int limit, int offset)
         {
-            query = $"SELECT * FROM rating WHERE IDAp = {id} ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
+            query = $"SELECT * FROM get_all_ratings({id}) ORDER BY ID_Rating ASC LIMIT {limit} OFFSET {offset};";
 
             IList<Rating> ratings = null;
             var ratJson = new RatingJSON();
