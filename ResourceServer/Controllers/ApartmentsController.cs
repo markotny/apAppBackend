@@ -30,6 +30,7 @@ namespace ResourceServer.Controllers
 
         // GET: api/Apartments
         [HttpPost]
+        [AllowAnonymous]
         public string Get(LimitOffset limitOffset)
         {
             var limit = limitOffset.limit;
